@@ -140,7 +140,7 @@ Samewise to videos just *send_videos()*  method;
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
->>> messenger.find_video('path-to-video)
+>>> messenger.send_video('path-to-video)
 
 ```
 
@@ -152,7 +152,7 @@ The rest of the documents such as docx, pdf, audio, you name it falls into the c
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
->>> messenger.find_file('path-to-file')
+>>> messenger.send_file('path-to-file')
 ```
 
 ....
