@@ -1,5 +1,7 @@
 # [alright](#)
 
+<samp>
+
 Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](https://github.com/shauryauppal/PyWhatsapp)
 
 
@@ -22,3 +24,7 @@ I then went for [**WebWhatsapp-Wrapper**](https://github.com/mukulhase/WebWhatsa
 Which is [**PyWhatsapp**](https://github.com/shauryauppal/PyWhatsapp) by [shauryauppal](https://github.com/shauryauppal/), which was more of cli tool than a wrapper which suprisingly worked and it's approach allows you to dynamically send whatsapp message to unsaved contacts without rescanning QR-code everytime.
 
 So what I did is more of a refactoring of the implementation of that tool to be more of wrapper to easily allow people to run different scripts on top of it instead of just using as a tool I then thought of sharing the codebase to people who might struggled to do this as I did.
+
+
+....
+</samp>
