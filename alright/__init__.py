@@ -170,6 +170,3 @@ class WhatsApp(object):
             print(f'Failed to send a PDF to {self.mobile}')
         finally:
             print("send_file() finished running ")
-
-    def __del__(self):
-        self.browser.quit()
