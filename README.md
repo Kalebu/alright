@@ -93,6 +93,8 @@ Now after that we're now ready to automating and controlling whatsappp web using
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
 
+*When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
+
 ### Sending Messages
 
 To send a message with alright, you first need to target a specific user by using *find_user()* method and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
