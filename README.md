@@ -84,11 +84,76 @@ export PATH=$PATH:"/home/kalebu/chrome-driver"
 
 For window users you follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
 
+Now after that we're now ready to automating and controlling whatsappp web using **alright**
 
-Now after that we're now ready to automating and controlling whatsappp web using *alright**
+## What you can do with alright?
 
+- [Send Messages](#sending-messages)
+- [Send Images](#sending-images)
+- [Send Videos](#sending-videos)
+- [Send Documents](#sending-documents)
 
+### Sending Messages
 
+To send a message with alright, you first need to target a specific user by using *find_user()* method and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_user('2557xxxxxz')
+>>> messages = ['Morning my love', 'I wish you a good night!']
+>>> for message in messages:  
+        messenger.send_message(message)    
+```
+
+#### Multiple numbers
+
+Here how to send a message to multiple users, Let's say we wanta wish merry-x mass to all our contacts, our code is going to look like this;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> numbers = ['2557xxxxxx', '2557xxxxxx', '....']
+>>> for number in numbers:
+        messenger.find_user(number)
+        messenger.send_message("I wish you a Merry X-mass and Happy new year ")
+```
+
+*You have to include the country code in your number for this library to work but don't include the (+) symbol*
+
+### Sending Images
+
+Sending message is nothing new, its just the fact you have to include a path to your image instead or raw string characters and also you have use *send_image()*, Here an example;
+
+```python
+>>> form alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_user('mobile')
+>>> messenger.send_image('path-to-image')
+```
+
+### Sending Videos
+
+Samewise to videos just *send_videos()*  method;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_user('mobile')
+>>> messenger.find_video('path-to-video)
+
+```
+
+## Sending Documents
+
+The rest of the documents such as docx, pdf, audio, you name it falls into the category of documents and you can *send_files()* to that.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_user('mobile')
+>>> messenger.find_file('path-to-file')
+```
 
 ....
 </samp>

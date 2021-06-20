@@ -44,8 +44,8 @@ class WhatsApp(object):
         """
         return f'{self.suffix_link}{mobile}'
 
-    def find_the_user(self, mobile) -> None:
-        """find_the_user()
+    def find_user(self, mobile) -> None:
+        """find_user()
         Makes a user with a given mobile a current target for the wrapper
 
         Args:
@@ -66,7 +66,7 @@ class WhatsApp(object):
         except UnexpectedAlertPresentException as bug:
             print(bug)
             time.sleep(1)
-            self.find_the_user(mobile)
+            self.find_user(mobile)
 
     def send_message(self, message):
         """send_message ()
