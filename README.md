@@ -144,7 +144,7 @@ Samewise to videos just *send_videos()*  method;
 
 ```
 
-## Sending Documents
+### Sending Documents
 
 The rest of the documents such as docx, pdf, audio, you name it falls into the category of documents and you can *send_files()* to that.
 
@@ -155,5 +155,28 @@ The rest of the documents such as docx, pdf, audio, you name it falls into the c
 >>> messenger.send_file('path-to-file')
 ```
 
-....
+Well thats all for now for the package, to request new feature make an issue.
+
+## Contributions
+
+**alright** is opensource package under **MIT** license, so contributions are warmly welcome whether that be a code , docs or typo just fork it.
+
+when contributing to code please make an issue for that before going making your changes so that we can have a prior discussion on implementation
+
+## Issues
+
+If you're facing any issue or difficult with the usage of the package just raise one so as we can fix it as soon as possible.
+
+## Give it a star
+
+Was this useful to you ? then give it a star so that more people can know about this. 
+
+## Credits
+
+All the credits to;
+
+- [kalebu](https://github.com/kalebu)
+- [shauryauppal](https://github.com/shauryauppal/)
+- and all the contributors
+
 </samp>
