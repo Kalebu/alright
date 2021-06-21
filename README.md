@@ -83,7 +83,7 @@ nano ~/.bashrc
 and then add the command to export the folder at the very bottom of the file & then Ctrl+X to save it
 
 ```bash
-export PATH=$PATH:"/home/kalebu/chrome-driver"
+export PATH="$PATH:/home/kalebu/chrome-driver"
 ```
 
 ##### Window
