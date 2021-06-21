@@ -4,6 +4,11 @@
 
 Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](https://github.com/shauryauppal/PyWhatsapp)
 
+[![Downloads](https://pepy.tech/badge/alright)](https://pepy.tech/project/alright)
+[![Downloads](https://pepy.tech/badge/alright/month)](https://pepy.tech/project/alright)
+[![Downloads](https://pepy.tech/badge/alright/week)](https://pepy.tech/project/alright)
+
+
 <img src="alright.png" height="100" width="150">
 
 ## Why alright ? 
