@@ -4,6 +4,7 @@
 
 Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](https://github.com/shauryauppal/PyWhatsapp)
 
+<img src="alright.png" height="100" width="150">
 
 ## Why alright ? 
 
