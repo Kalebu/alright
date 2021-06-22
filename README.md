@@ -83,12 +83,12 @@ nano ~/.bashrc
 and then add the command to export the folder at the very bottom of the file & then Ctrl+X to save it
 
 ```bash
-export PATH=$PATH:"/home/kalebu/chrome-driver"
+export PATH="$PATH:/home/kalebu/chrome-driver"
 ```
 
-##### Window
+##### Windows
 
-For window users you follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
+For windows users you follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
 
 Now after that we're now ready to automating and controlling whatsappp web using **alright**
 
@@ -181,7 +181,7 @@ Was this useful to you ? then give it a star so that more people can know about 
 
 ## Credits
 
-All the credits to;
+All the credits to:
 
 - [kalebu](https://github.com/kalebu)
 - [shauryauppal](https://github.com/shauryauppal/)
