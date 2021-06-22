@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 
 
 class WhatsApp(object):
@@ -43,6 +43,19 @@ class WhatsApp(object):
             str: [description]
         """
         return f'{self.suffix_link}{mobile}'
+
+    def catch_alert(self, seconds=3):
+        """catch_alert()
+
+            catches any sudden alert
+        """
+        try:
+            WebDriverWait(self.browser, seconds).until(EC.alert_is_present())
+            alert = self.browser.switch_to_alert.accept()
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def find_user(self, mobile) -> None:
         """find_user()
@@ -83,7 +96,7 @@ class WhatsApp(object):
             print(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             print(bug)
-            print(f'Failed to send a PDF to {self.mobile}')
+            print(f'Failed to send a message to {self.mobile}')
 
         finally:
             print("send_message() finished running ")
