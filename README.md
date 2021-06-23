@@ -86,8 +86,8 @@ export PATH="$PATH:/home/kalebu/chrome-driver"
 ```
 
 ##### Windows
-
-For windows users you follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
+        
+Windows users follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
 
 Now after that we're now ready to automating and controlling whatsappp web using **alright**
 
@@ -115,7 +115,7 @@ To send a message with alright, you first need to target a specific user by usin
 
 #### Multiple numbers
 
-Here how to send a message to multiple users, Let's say we wanta wish merry-x mass to all our contacts, our code is going to look like this;
+Here how to send a message to multiple users, Let's say we want to wish merry-x mass to all our contacts, our code is going to look like this;
 
 ```python
 >>> from alright import WhatsApp
@@ -153,7 +153,7 @@ Samewise to videos just *send_videos()*  method;
 
 ### Sending Documents
 
-The rest of the documents such as docx, pdf, audio, you name it falls into the category of documents and you can *send_files()* to that.
+The rest of the documents such as docx, pdf, audio etc. falls into documents category. You can use *send_files()* to do that.
 
 ```python
 >>> from alright import WhatsApp
@@ -162,21 +162,21 @@ The rest of the documents such as docx, pdf, audio, you name it falls into the c
 >>> messenger.send_file('path-to-file')
 ```
 
-Well thats all for now for the package, to request new feature make an issue.
+Well! thats all for now from the package, to request new feature make an issue.
 
 ## Contributions
 
-**alright** is opensource package under **MIT** license, so contributions are warmly welcome whether that be a code , docs or typo just fork it.
+**alright** is an open-source package under **MIT** license, so contributions are warmly welcome whether that be a code , docs or typo just fork it.
 
-when contributing to code please make an issue for that before going making your changes so that we can have a prior discussion on implementation.
+when contributing to code please make an issue for that before making your changes so that we can have a discussion before implementation.
 
 ## Issues
 
-If you're facing any issue or difficult with the usage of the package just raise one so as we can fix it as soon as possible.
+If you're facing any issue or difficulty with the usage of the package just raise one so that we can fix it as soon as possible.
 
 ## Give it a star
 
-Was this useful to you ? then give it a star so that more people can know about this. 
+Was this useful to you ? Then give it a star so that more people can manke use of this. 
 
 ## Credits
 
