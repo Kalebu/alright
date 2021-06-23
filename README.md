@@ -8,7 +8,7 @@ Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](http
 [![Downloads](https://pepy.tech/badge/alright/month)](https://pepy.tech/project/alright)
 [![Downloads](https://pepy.tech/badge/alright/week)](https://pepy.tech/project/alright)
 
-[![Youtube demo](https://img.youtube.com/vi/https://www.youtube.com/watch?v=yitQTt-NukM/0.jpg)](https://www.youtube.com/watch?v=https://www.youtube.com/watch?v=yitQTt-NukM)
+[![Youtube demo](https://img.youtube.com/vi/yitQTt-NukM/0.jpg)](https://www.youtube.com/watch?v=https://www.youtube.com/watch?v=yitQTt-NukM)
 
 ## Why alright ? 
 
