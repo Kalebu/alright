@@ -8,9 +8,15 @@ Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](http
 [![Downloads](https://pepy.tech/badge/alright/month)](https://pepy.tech/project/alright)
 [![Downloads](https://pepy.tech/badge/alright/week)](https://pepy.tech/project/alright)
 
-
-[![Youtube demo](https://www.youtube.com/watch?v=yitQTt-NukM)](https://www.youtube.com/watch?v=https://www.youtube.com/watch?v=yitQTt-NukM)
- 
+<iframe
+    width="640"
+    height="480"
+    src="https://www.youtube.com/watch?v=yitQTt-NukM"
+    frameborder="0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen
+>
+</iframe> 
 
 ## Why alright ? 
 
