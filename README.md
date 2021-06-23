@@ -119,7 +119,7 @@ Here an Example on how to do that
 ```python
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
->>> messenger.find_by_username('saved-name or number or group)
+>>> messenger.find_by_username('saved-name or number or group')
 ```
 
 #### Unsaved contacts
