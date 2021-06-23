@@ -103,7 +103,7 @@ Now after that we're now ready to automating and controlling whatsappp web using
 
 ### Sending Messages
 
-To send a message with alright, you first need to target a specific user by using *find_user()* method and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
+To send a message with alright, you first need to target a specific user by using *find_user()* method (include the **country code** in your number withour '+' symbol) and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
 
 ```python
 >>> from alright import WhatsApp
@@ -127,14 +127,14 @@ Here how to send a message to multiple users, Let's say we wanta wish merry-x ma
         messenger.send_message("I wish you a Merry X-mass and Happy new year ")
 ```
 
-*You have to include the country code in your number for this library to work but don't include the (+) symbol*
+*You have to include the **country code** in your number for this library to work but don't include the (+) symbol*
 
 ### Sending Images
 
-Sending message is nothing new, its just the fact you have to include a path to your image instead or raw string characters and also you have use *send_image()*, Here an example;
+Sending Images is nothing new, its just the fact you have to include a path to your image instead or raw string characters and also you have use *send_image()*, Here an example;
 
 ```python
->>> form alright import WhatsApp
+>>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
 >>> messenger.send_image('path-to-image')
@@ -169,7 +169,7 @@ Well thats all for now for the package, to request new feature make an issue.
 
 **alright** is opensource package under **MIT** license, so contributions are warmly welcome whether that be a code , docs or typo just fork it.
 
-when contributing to code please make an issue for that before going making your changes so that we can have a prior discussion on implementation
+when contributing to code please make an issue for that before going making your changes so that we can have a prior discussion on implementation.
 
 ## Issues
 
