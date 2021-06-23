@@ -1,20 +1,21 @@
 """
 Alright is unofficial Python wrapper for whatsapp web made as an inspiration from PyWhatsApp
-allowing you to send messages, images, video and documents programmatically using Python 
+allowing you to send messages, images, video and documents programmatically using Python
 """
 
 
 import os
 import time
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (UnexpectedAlertPresentException,
+                                        NoAlertPresentException,
+                                        NoSuchElementException)
 
 
 class WhatsApp(object):
@@ -81,9 +82,27 @@ class WhatsApp(object):
             time.sleep(1)
             self.find_user(mobile)
 
+    def find_by_username(self, username):
+        """find_user_by_name ()
+
+        locate existing contact by username or number
+
+        Args:
+            username ([type]): [description]
+        """
+        try:
+            search_box = self.wait.until(EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')))
+            search_box.clear()
+            search_box.send_keys(username)
+            search_box.send_keys(Keys.ENTER)
+        except Exception as bug:
+            error = f'Exception raised while finding user {username}\n{bug}'
+            print(error)
+
     def send_message(self, message):
         """send_message ()
-        Sends a message to a target user 
+        Sends a message to a target user
 
         Args:
             message ([type]): [description]

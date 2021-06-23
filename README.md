@@ -101,6 +101,40 @@ Now after that we're now ready to automating and controlling whatsappp web using
 
 *When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
 
+### Unsaved contact vs saved contacts
+
+Alright allows you to send the messages and media to both unsaved contacts as explained earlier but there is a tiny distinction on how you do that, you will observe this clearly as use the package.
+
+The first step before sending anything to the user is first to locate the user and then you can start sending the informations thats where the main difference lies btn saved and unsaved contacts.
+
+#### Saved contacts
+
+To saved contact use method *find_by_username()* to locate saved user,you can also use the same method to locate WhatsApp groups, The parameter can be either be;
+
+- saved username
+- mobile number
+- group name
+
+Here an Example on how to do that
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_by_username('saved-name or number or group)
+```
+
+#### Unsaved contacts
+
+In sending message to unsaved whatsapp contacts use *find_user()* method to locate the user and The parameter can only be users number with country code with (+) omitted as shown below;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.find_user('255-74848xxxx')
+```
+
+Now Let's dive in on how we can get started on sending messages and medias
+
 ### Sending Messages
 
 To send a message with alright, you first need to target a specific user by using *find_user()* method and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
