@@ -9,7 +9,8 @@ Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](http
 [![Downloads](https://pepy.tech/badge/alright/week)](https://pepy.tech/project/alright)
 
 
-<img src="alright.png" height="100" width="150">
+[![Youtube demo](https://www.youtube.com/watch?v=yitQTt-NukM)](https://www.youtube.com/watch?v=https://www.youtube.com/watch?v=yitQTt-NukM)
+ 
 
 ## Why alright ? 
 
