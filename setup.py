@@ -10,7 +10,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="alright",
-    version="1.2",
+    version="1.3",
     description="Python wrapper for WhatsApp web-based on selenium",
     long_description=long_description,
     long_description_content_type='text/markdown',
