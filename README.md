@@ -69,7 +69,7 @@ Here a [guide](https://help.zenplanner.com/hc/en-us/articles/204253654-How-to-Fi
 
 One more final step to set up is to add the selenium driver location to **path** so as it can be discovered by **alright**, which varies depending on the operating system you're using.
 
-For instance lets say example the current location our driver is in */home/kalebu/chrome-driver* (You can view full path to your driver by running **pwd** command), Here how you would do that.
+For instance lets say example the current location our driver is in ```$HOME/chrome-driver``` (You can view full path to your driver by running **pwd** command), Here how you would do that.
 
 ##### Linux
 
@@ -82,7 +82,7 @@ nano ~/.bashrc
 and then add the command to export the folder at the very bottom of the file & then Ctrl+X to save it
 
 ```bash
-export PATH="$PATH:/home/kalebu/chrome-driver"
+export PATH="$PATH:$HOME/chrome-driver"
 ```
 
 ##### Windows
