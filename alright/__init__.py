@@ -18,13 +18,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import (UnexpectedAlertPresentException,
                                         NoAlertPresentException,
                                         NoSuchElementException)
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class WhatsApp(object):
-    def __init__(self):
+    def __init__(self, browser = None):
         self.BASE_URL = 'https://web.whatsapp.com/'
         self.suffix_link = 'https://wa.me/'
-        self.browser = webdriver.Chrome(options=self.chrome_options)
+
+        if not browser:
+            browser = webdriver.Chrome(
+                ChromeDriverManager().install(),
+                options=self.chrome_options,
+            )
+
+        self.browser = browser
+
         self.wait = WebDriverWait(self.browser, 600)
         self.login()
         self.mobile = ''
