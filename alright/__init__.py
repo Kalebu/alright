@@ -5,7 +5,6 @@ allowing you to send messages, images, video and documents programmatically usin
 
 
 import os
-from platform import platform
 import sys
 import time
 from selenium import webdriver
@@ -13,11 +12,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import (UnexpectedAlertPresentException,
-                                        NoAlertPresentException,
-                                        NoSuchElementException)
+from selenium.common.exceptions import (
+    UnexpectedAlertPresentException,
+    NoSuchElementException,
+)
 from webdriver_manager.chrome import ChromeDriverManager
 
 
