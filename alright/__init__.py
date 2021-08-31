@@ -119,6 +119,30 @@ class WhatsApp(object):
             error = f'Exception raised while finding user {username}\n{bug}'
             print(error)
 
+    def username_exists(self, username):
+        """username_exists ()
+
+        Returns True or False whether the contact exists or not, and selects the contact if it exists, by checking if the search performed actually opens a conversation with that contact
+
+        Args:
+            username ([type]): [description]
+        """
+        try:
+            search_box = self.wait.until(EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')))
+            search_box.clear()
+            search_box.send_keys(username)
+            search_box.send_keys(Keys.ENTER)
+            opened_chat = self.browser.find_element_by_xpath("/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span")
+            title = opened_chat.get_attribute("title") 
+            if title.upper() == username.upper():
+                return True
+            else:
+                return False
+        except Exception as bug:
+            error = f'Exception raised while finding user {username}\n{bug}'
+            print(error)
+
     def send_message(self, message):
         """send_message ()
         Sends a message to a target user
