@@ -55,41 +55,9 @@ alright > python setup.py install
 pip install alright 
 ```
 
-### Setting up Selenium 
+### Setting up Selenium
 
-Underneath alright is **Selenium**  which is one does all the automation work by directly controlling the browser, so you need to have a selenium driver on your machine for **alright** to work.
-
-So primarly I developed **alright** and tested on a Chrome browser and therefore it gonna require you to have [Chrome](https://www.google.com/chrome/) and [chromedriver](https://chromedriver.chromium.org/downloads) other browser support coming soon.
-
-*You need to make sure you download the chromedriver compatible with Chrome version you're using otherwise it won't work and also don't forget to extract the zip version of a driver*
-
-Here a [guide](https://help.zenplanner.com/hc/en-us/articles/204253654-How-to-Find-Your-Internet-Browser-Version-Number-Google-Chrome) to check the version of chrome you're using 
-
-#### Adding selenium driver to path
-
-One more final step to set up is to add the selenium driver location to **path** so as it can be discovered by **alright**, which varies depending on the operating system you're using.
-
-For instance lets say example the current location our driver is in ```$HOME/chrome-driver``` (You can view full path to your driver by running **pwd** command), Here how you would do that.
-
-##### Linux
-
-For linux to permanently add path to browser do this;
-
-```bash
-nano ~/.bashrc
-```
-
-and then add the command to export the folder at the very bottom of the file & then Ctrl+X to save it
-
-```bash
-export PATH="$PATH:$HOME/chrome-driver"
-```
-
-##### Windows
-        
-Windows users follow this [guide](https://www.forbeslindesay.co.uk/post/42833119552/permanently-set-environment-variables-on-windows) to actually do that.
-
-Now after that we're now ready to automating and controlling whatsappp web using **alright**
+Underneath alright is **Selenium** which is one does all the automation work by directly controlling the browser, so you need to have a selenium driver on your machine for **alright** to work. But luckily alright uses [webdrive-manager](https://pypi.org/project/webdriver-manager/), which does this automatically. You just need to install a browser. By default alright uses [Google Chrome](https://www.google.com/chrome/).
 
 ## What you can do with alright?
 
