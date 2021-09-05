@@ -5,8 +5,6 @@ allowing you to send messages, images, video and documents programmatically usin
 
 
 import os
-from time import sleep
-from platform import platform
 import sys
 import time
 from selenium import webdriver
@@ -14,18 +12,27 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import (UnexpectedAlertPresentException,
-                                        NoAlertPresentException,
-                                        NoSuchElementException)
+from selenium.common.exceptions import (
+    UnexpectedAlertPresentException,
+    NoSuchElementException,
+)
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class WhatsApp(object):
-    def __init__(self):
+    def __init__(self, browser = None):
         self.BASE_URL = 'https://web.whatsapp.com/'
         self.suffix_link = 'https://wa.me/'
-        self.browser = webdriver.Chrome(options=self.chrome_options)
+
+        if not browser:
+            browser = webdriver.Chrome(
+                ChromeDriverManager().install(),
+                options=self.chrome_options,
+            )
+
+        self.browser = browser
+
         self.wait = WebDriverWait(self.browser, 600)
         self.login()
         self.mobile = ''
