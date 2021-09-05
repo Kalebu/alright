@@ -168,7 +168,7 @@ class WhatsApp(object):
             (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')))
 
         sendButton = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/span/div/div')))
+            (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[2]/div[2]/div/div/span')))
         sendButton.click()
 
     def send_picture(self, picture):
