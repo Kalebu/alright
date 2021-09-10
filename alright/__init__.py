@@ -144,10 +144,10 @@ class WhatsApp(object):
             error = f'Exception raised while finding user {username}\n{bug}'
             print(error)
             
-    def isUserOnWhatsApp(self) -> bool:
+    def is_user_on_WhatsApp(self) -> bool:
         try:
             inp_xpath = '//*[@id="main"]/footer/div[1]/div[2]/div/div[1]/div/div[2]'
-            input_box = self.wait2.until(
+            input_box = self.wait_user.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath)))
             return True
         except:
