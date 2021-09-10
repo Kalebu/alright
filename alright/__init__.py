@@ -34,6 +34,7 @@ class WhatsApp(object):
         self.browser = browser
 
         self.wait = WebDriverWait(self.browser, 600)
+        self.wait_user = WebDriverWait(self.browser, 15)
         self.login()
         self.mobile = ''
 
@@ -142,6 +143,15 @@ class WhatsApp(object):
         except Exception as bug:
             error = f'Exception raised while finding user {username}\n{bug}'
             print(error)
+            
+    def isUserOnWhatsApp(self) -> bool:
+        try:
+            inp_xpath = '//*[@id="main"]/footer/div[1]/div[2]/div/div[1]/div/div[2]'
+            input_box = self.wait2.until(
+                EC.presence_of_element_located((By.XPATH, inp_xpath)))
+            return True
+        except:
+            return False        
 
     def send_message(self, message):
         """send_message ()
