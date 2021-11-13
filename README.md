@@ -52,7 +52,7 @@ alright > python setup.py install
 #### installing from pip
 
 ```bash
-pip install alright 
+pip install alright --upgrade
 ```
 
 ### Setting up Selenium
