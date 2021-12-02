@@ -65,6 +65,8 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 - [Send Images](#sending-images)
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
+- [logout](#logout)
+
 
 *When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
 
@@ -164,6 +166,19 @@ The rest of the documents such as docx, pdf, audio etc. falls into documents cat
 >>> messenger.send_file('path-to-file')
 ```
 
+
+        
+### logout from whatsapp
+
+You can sign out of an account that is currently saved
+
+```python
+>>> from alright import WhatsApp
+>>> messenger.logout()
+```
+        
+        
+        
 Well! thats all for now from the package, to request new feature make an issue.
 
 ## Contributions
