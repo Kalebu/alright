@@ -138,7 +138,7 @@ Sending Images is nothing new, its just the fact you have to include a path to y
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
->>> messenger.send_image('path-to-image')
+>>> messenger.send_picture('path-to-image')
 ```
 
 ### Sending Videos
