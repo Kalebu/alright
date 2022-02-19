@@ -53,25 +53,26 @@ class WhatsApp(object):
         self.browser.maximize_window()
 
     def logout(self):
-        dotsButton = self.wait.until(
+        prefix = "//div[@id='side']/header/div[2]/div/span/div[3]"
+        dots_button = self.wait.until(
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "//div[@id='side']/header/div[2]/div/span/div[3]/div[@role='button']",
+                    f"{prefix}/div[@role='button']",
                 )
             )
         )
-        dotsButton.click()
+        dots_button.click()
 
-        logoutItem = self.wait.until(
+        logout_item = self.wait.until(
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "//div[@id='side']/header/div[2]/div/span/div[3]/span/div[1]/ul/li[last()]/div[@role='button']",
+                    f"{prefix}/span/div[1]/ul/li[last()]/div[@role='button']",
                 )
             )
         )
-        logoutItem.click()
+        logout_item.click()
 
     def get_phone_link(self, mobile) -> str:
         """get_phone_link (), create a link based on whatsapp (wa.me) api
