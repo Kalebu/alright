@@ -21,9 +21,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 class WhatsApp(object):
-    def __init__(self, browser = None):
-        self.BASE_URL = 'https://web.whatsapp.com/'
-        self.suffix_link = 'https://wa.me/'
+    def __init__(self, browser=None):
+        self.BASE_URL = "https://web.whatsapp.com/"
+        self.suffix_link = "https://wa.me/"
 
         if not browser:
             browser = webdriver.Chrome(
@@ -35,34 +35,43 @@ class WhatsApp(object):
 
         self.wait = WebDriverWait(self.browser, 600)
         self.login()
-        self.mobile = ''
+        self.mobile = ""
 
     @property
     def chrome_options(self):
         chrome_options = Options()
         if sys.platform == "win32":
-            chrome_options.add_argument('--profile-directory=Default')
-            chrome_options.add_argument(
-                '--user-data-dir=C:/Temp/ChromeProfile')
+            chrome_options.add_argument("--profile-directory=Default")
+            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
-            chrome_options.add_argument('--user-data-dir=./User_Data')
+            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def login(self):
         self.browser.get(self.BASE_URL)
         self.browser.maximize_window()
-        
-        
-    def logout(self):
-        sendButton = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[1]/div[1]/div[1]/div[3]/div/header/div[2]/div/span/div[3]/div')))
-        sendButton.click()
 
-        sendButton = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[1]/div[1]/div[1]/div[3]/div/header/div[2]/div/span/div[3]/span/div[1]/ul/li[5]/div[1]')))
-        sendButton.click()     
-        
+    def logout(self):
+        dotsButton = self.wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='side']/header/div[2]/div/span/div[3]/div[@role='button']",
+                )
+            )
+        )
+        dotsButton.click()
+
+        logoutItem = self.wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='side']/header/div[2]/div/span/div[3]/span/div[1]/ul/li[last()]/div[@role='button']",
+                )
+            )
+        )
+        logoutItem.click()
 
     def get_phone_link(self, mobile) -> str:
         """get_phone_link (), create a link based on whatsapp (wa.me) api
@@ -73,12 +82,12 @@ class WhatsApp(object):
         Returns:
             str: [description]
         """
-        return f'{self.suffix_link}{mobile}'
+        return f"{self.suffix_link}{mobile}"
 
     def catch_alert(self, seconds=3):
         """catch_alert()
 
-            catches any sudden alert
+        catches any sudden alert
         """
         try:
             WebDriverWait(self.browser, seconds).until(EC.alert_is_present())
@@ -99,12 +108,16 @@ class WhatsApp(object):
             self.mobile = mobile
             link = self.get_phone_link(mobile)
             self.browser.get(link)
-            action_button = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="action-button"]')))
+            action_button = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="action-button"]'))
+            )
             action_button.click()
             time.sleep(2)
-            go_to_web = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="fallback_block"]/div/div/a')))
+            go_to_web = self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="fallback_block"]/div/div/a')
+                )
+            )
             go_to_web.click()
             time.sleep(1)
         except UnexpectedAlertPresentException as bug:
@@ -121,13 +134,16 @@ class WhatsApp(object):
             username ([type]): [description]
         """
         try:
-            search_box = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')))
+            search_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')
+                )
+            )
             search_box.clear()
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
         except Exception as bug:
-            error = f'Exception raised while finding user {username}\n{bug}'
+            error = f"Exception raised while finding user {username}\n{bug}"
             print(error)
 
     def username_exists(self, username):
@@ -139,19 +155,24 @@ class WhatsApp(object):
             username ([type]): [description]
         """
         try:
-            search_box = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')))
+            search_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')
+                )
+            )
             search_box.clear()
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
-            opened_chat = self.browser.find_element_by_xpath("/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span")
-            title = opened_chat.get_attribute("title") 
+            opened_chat = self.browser.find_element_by_xpath(
+                "/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span"
+            )
+            title = opened_chat.get_attribute("title")
             if title.upper() == username.upper():
                 return True
             else:
                 return False
         except Exception as bug:
-            error = f'Exception raised while finding user {username}\n{bug}'
+            error = f"Exception raised while finding user {username}\n{bug}"
             print(error)
 
     def send_message(self, message):
@@ -162,31 +183,45 @@ class WhatsApp(object):
             message ([type]): [description]
         """
         try:
-            inp_xpath = '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[2]'
+            inp_xpath = (
+                '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[2]'
+            )
             input_box = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, inp_xpath)))
+                EC.presence_of_element_located((By.XPATH, inp_xpath))
+            )
             input_box.send_keys(message + Keys.ENTER)
             print(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             print(bug)
-            print(f'Failed to send a message to {self.mobile}')
+            print(f"Failed to send a message to {self.mobile}")
 
         finally:
             print("send_message() finished running ")
 
     def find_attachment(self):
-        clipButton = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH,
-             '//*[@id="main"]/footer//*[@data-icon="clip"]/..')))
+        clipButton = self.wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="clip"]/..')
+            )
+        )
         clipButton.click()
 
     def send_attachment(self):
         # Waiting for the pending clock icon to disappear
-        self.wait.until_not(EC.presence_of_element_located(
-            (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')))
+        self.wait.until_not(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+            )
+        )
 
-        sendButton = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[2]/div[2]/div/div/span')))
+        sendButton = self.wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[2]/div[2]/div/div/span',
+                )
+            )
+        )
         sendButton.click()
 
     def send_picture(self, picture):
@@ -201,14 +236,20 @@ class WhatsApp(object):
             filename = os.path.realpath(picture)
             self.find_attachment()
             # To send an Image
-            imgButton = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input')))
+            imgButton = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                    )
+                )
+            )
             imgButton.send_keys(filename)
             self.send_attachment()
             print(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             print(bug)
-            print(f'Failed to send a picture to {self.mobile}')
+            print(f"Failed to send a picture to {self.mobile}")
 
         finally:
             print("send_picture() finished running ")
@@ -225,14 +266,20 @@ class WhatsApp(object):
             filename = os.path.realpath(video)
             self.find_attachment()
             # To send a Video
-            video_button = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input')))
+            video_button = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                    )
+                )
+            )
             video_button.send_keys(filename)
             self.send_attachment()
-            print(f'Video has been successfully sent to {self.mobile}')
+            print(f"Video has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             print(bug)
-            print(f'Failed to send a video to {self.mobile}')
+            print(f"Failed to send a video to {self.mobile}")
         finally:
             print("send_video() finished running ")
 
@@ -247,12 +294,18 @@ class WhatsApp(object):
         try:
             filename = os.path.realpath(filename)
             self.find_attachment()
-            document_button = self.wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-document"]/../input')))
+            document_button = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//*[@id="main"]/footer//*[@data-icon="attach-document"]/../input',
+                    )
+                )
+            )
             document_button.send_keys(filename)
             self.send_attachment()
         except (NoSuchElementException, Exception) as bug:
             print(bug)
-            print(f'Failed to send a PDF to {self.mobile}')
+            print(f"Failed to send a PDF to {self.mobile}")
         finally:
             print("send_file() finished running ")
