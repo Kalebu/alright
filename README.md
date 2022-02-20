@@ -174,6 +174,7 @@ You can sign out of an account that is currently saved
 
 ```python
 >>> from alright import WhatsApp
+>>> messenger = WhatsApp()
 >>> messenger.logout()
 ```
         
