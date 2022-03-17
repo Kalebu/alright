@@ -134,13 +134,13 @@ Here how to send a message to multiple users, Let's say we want to wish merry-x 
 
 ### Sending Images
 
-Sending Images is nothing new, its just the fact you have to include a path to your image instead or raw string characters and also you have use *send_image()*, Here an example;
+Sending Images is nothing new, its just the fact you have to include a path to your image and the message to accompany the image instead of just the raw string characters and also you have use *send_image()*, Here an example;
 
 ```python
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
->>> messenger.send_picture('path-to-image')
+>>> messenger.send_picture('path-to-image',"Text to accompany image")
 ```
 
 ### Sending Videos
