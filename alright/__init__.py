@@ -225,7 +225,7 @@ class WhatsApp(object):
         )
         sendButton.click()
 
-    def send_picture(self, picture):
+    def send_picture(self, picture, message):
         """send_picture ()
 
         Sends a picture to a target user
@@ -246,6 +246,16 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
+            inp_xpath = '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div/div[2]'
+            input_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        inp_xpath
+                    )
+                )
+            )
+            input_box.send_keys(message)
             self.send_attachment()
             print(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
