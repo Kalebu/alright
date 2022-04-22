@@ -204,16 +204,21 @@ class WhatsApp(object):
                     ctrl_self.find_elements(By.XPATH, inp_xpath)
             )
             # Iterate through the list of elements to test each if they are a textBox or a Button
-            for i in ctrl_element:
+                        for i in ctrl_element:
                 if i.aria_role == 'textbox':
                     # This is a WhatsApp Number -> Send Message
                     i.send_keys(message + Keys.ENTER)
-                    msg = f"Message sent successfully to {self.mobile}"
+                    msg = f"Message sent successfully to {mobile}"
+                    # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
+                    self.catch_alert()
 
                 elif i.aria_role == 'button':
-                    # This is NOT a WhatsApp Number -> Press enter and continue
-                    i.send_keys(Keys.ENTER)
-                    msg = f"Not a WhatsApp Number {self.mobile}"
+                    # Did not find the Message Text box
+                    # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
+                    if i.text == 'OK':
+                        # This is NOT a WhatsApp Number -> Press enter and continue
+                        i.send_keys(Keys.ENTER)
+                        msg = f"Not a WhatsApp Number {mobile}"
 
         except (NoSuchElementException, Exception) as bug:
             print(bug)
