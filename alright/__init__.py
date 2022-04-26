@@ -18,10 +18,13 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 from webdriver_manager.chrome import ChromeDriverManager
-
+from urllib.parse import quote
 
 class WhatsApp(object):
-    def __init__(self, browser=None):
+    def __init__(self, browser=None, time_out=600):
+        # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
+        # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
+
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://wa.me/"
 
@@ -32,8 +35,8 @@ class WhatsApp(object):
             )
 
         self.browser = browser
-
-        self.wait = WebDriverWait(self.browser, 600)
+        # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
+        self.wait = WebDriverWait(self.browser, time_out)
         self.login()
         self.mobile = ""
 
@@ -176,6 +179,54 @@ class WhatsApp(object):
             error = f"Exception raised while finding user {username}\n{bug}"
             print(error)
 
+    def send_message1(self, mobile: str, message: str):
+        """ CJM - 20220419:
+            Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
+            Also include the Number we want to send to """
+        try:
+            # Browse to a "Blank" message state
+            self.browser.get(f"https://web.whatsapp.com/send?phone={mobile}&text")
+
+            # This is the XPath of the message textbox
+            inp_xpath = (
+                '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[2]'
+            )
+            # This is the XPath of the "ok button" if the number was not found
+            nr_not_found_xpath = (
+                '//*[@id="app"]/div/span[2]/div/span/div/div/div/div/div/div[2]/div/div'
+            )
+
+            # If the number is NOT a WhatsApp number then there will be an OK Button, not the Message Textbox
+            # Test for both situations -> find_elements returns a List
+            ctrl_element = self.wait.until(
+                lambda ctrl_self:
+                    ctrl_self.find_elements(By.XPATH, nr_not_found_xpath) or
+                    ctrl_self.find_elements(By.XPATH, inp_xpath)
+            )
+            # Iterate through the list of elements to test each if they are a textBox or a Button
+                        for i in ctrl_element:
+                if i.aria_role == 'textbox':
+                    # This is a WhatsApp Number -> Send Message
+                    i.send_keys(message + Keys.ENTER)
+                    msg = f"Message sent successfully to {mobile}"
+                    # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
+                    self.catch_alert()
+
+                elif i.aria_role == 'button':
+                    # Did not find the Message Text box
+                    # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
+                    if i.text == 'OK':
+                        # This is NOT a WhatsApp Number -> Press enter and continue
+                        i.send_keys(Keys.ENTER)
+                        msg = f"Not a WhatsApp Number {mobile}"
+
+        except (NoSuchElementException, Exception) as bug:
+            print(bug)
+            msg = f"Failed to send a message to {self.mobile}"
+
+        finally:
+            print(msg)
+
     def send_message(self, message):
         """send_message ()
         Sends a message to a target user
@@ -225,7 +276,7 @@ class WhatsApp(object):
         )
         sendButton.click()
 
-    def send_picture(self, picture):
+    def send_picture(self, picture, message):
         """send_picture ()
 
         Sends a picture to a target user
@@ -246,6 +297,16 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
+            inp_xpath = '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div/div[2]'
+            input_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        inp_xpath
+                    )
+                )
+            )
+            input_box.send_keys(message)
             self.send_attachment()
             print(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
