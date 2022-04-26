@@ -61,7 +61,8 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 
 ## What you can do with alright?
 
-- [Send Messages](#sending-messages)
+- [Send Messages](#sending-messages: IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1)
+- [Send Messages1](#sending-messages BUT not opening the Desktop App)
 - [Send Images](#sending-images)
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
@@ -117,6 +118,20 @@ To send a message with alright, you first need to target a specific user by usin
         messenger.send_message(message)    
 ```
 
+### Sending Messages 1
+
+This Send Message does NOT find the user first like in the above Send Message, AND it does work even if you have the Desktop WhatsApp app installed
+include the **country code** in your number withour '+' symbol as shown in the example below;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messages = ['Morning my love', 'I wish you a good night!']
+>>> mobNum = 27792346512
+>>> for message in messages:  
+        messenger.send_message1(mobNum, msg)
+```
+        
 #### Multiple numbers
 
 Here how to send a message to multiple users, Let's say we want to wish merry-x mass to all our contacts, our code is going to look like this;
