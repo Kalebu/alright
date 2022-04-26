@@ -61,8 +61,8 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 
 ## What you can do with alright?
 
-- [Send Messages](#sending-messages: IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1)
-- [Send Messages1](#sending-messages BUT not opening the Desktop App)
+- [Send Messages](#sending-messages)
+- [Send Messages1](#sending-messages1)
 - [Send Images](#sending-images)
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
@@ -107,6 +107,8 @@ Now Let's dive in on how we can get started on sending messages and medias
 
 ### Sending Messages
 
+>Use this if you don't have WhatsApp desktop installed 
+
 To send a message with alright, you first need to target a specific user by using *find_user()* method (include the **country code** in your number withour '+' symbol) and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
 
 ```python
@@ -117,8 +119,9 @@ To send a message with alright, you first need to target a specific user by usin
 >>> for message in messages:  
         messenger.send_message(message)    
 ```
+>IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1
 
-### Sending Messages 1
+### Sending Messages1
 
 This Send Message does NOT find the user first like in the above Send Message, AND it does work even if you have the Desktop WhatsApp app installed
 include the **country code** in your number withour '+' symbol as shown in the example below;
