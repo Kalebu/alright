@@ -120,7 +120,7 @@ class WhatsApp(object):
             time.sleep(2)
             go_to_web = self.wait.until(
                 EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="fallback_block"]/div/div/a')
+                    (By.XPATH, '//*[@id="fallback_block"]/div/div/h4[2]/a')
                 )
             )
             go_to_web.click()
