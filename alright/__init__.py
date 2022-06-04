@@ -78,6 +78,13 @@ class WhatsApp(object):
         )
         logout_item.click()
 
+    def close_browser(self):
+        """close_browser()
+
+        closes the browser window to allow repeated calls
+        """
+        self.browser.close()
+
     def get_phone_link(self, mobile) -> str:
         """get_phone_link (), create a link based on whatsapp (wa.me) api
 
@@ -141,7 +148,7 @@ class WhatsApp(object):
         try:
             search_box = self.wait.until(
                 EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')
+                    (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]')
                 )
             )
             search_box.clear()
