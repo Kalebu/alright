@@ -10,7 +10,7 @@ Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](http
 
 [![Youtube demo](https://img.youtube.com/vi/yitQTt-NukM/0.jpg)](https://www.youtube.com/watch?v=yitQTt-NukM)
 
-## Why alright ? 
+## Why alright ?
 
 I was looking for a way to control and automate WhatsApp web with Python, I came across some very nice libaries and wrappers implementations including;
 
@@ -40,7 +40,7 @@ We need to have alright installed on our machine to start using which can either
 
 #### installing directly
 
-You first need to clone or download the repo to your local directory and then move into the project directory as shown in the example and then run the below command; 
+You first need to clone or download the repo to your local directory and then move into the project directory as shown in the example and then run the below command;
 
 ```bash
 git clone https://github.com/Kalebu/alright
@@ -67,7 +67,6 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
 - [logout](#logout)
-
 
 *When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
 
@@ -107,7 +106,7 @@ Now Let's dive in on how we can get started on sending messages and medias
 
 ### Sending Messages
 
->Use this if you don't have WhatsApp desktop installed 
+>Use this if you don't have WhatsApp desktop installed
 
 To send a message with alright, you first need to target a specific user by using *find_user()* method (include the **country code** in your number withour '+' symbol) and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
 
@@ -119,6 +118,7 @@ To send a message with alright, you first need to target a specific user by usin
 >>> for message in messages:  
         messenger.send_message(message)    
 ```
+
 >IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1
 
 ### Sending Messages1
@@ -134,7 +134,7 @@ include the **country code** in your number withour '+' symbol as shown in the e
 >>> for message in messages:  
         messenger.send_message1(mobNum, msg)
 ```
-        
+
 #### Multiple numbers
 
 Here how to send a message to multiple users, Let's say we want to wish merry-x mass to all our contacts, our code is going to look like this;
@@ -184,8 +184,6 @@ The rest of the documents such as docx, pdf, audio etc. falls into documents cat
 >>> messenger.send_file('path-to-file')
 ```
 
-
-        
 ### logout from whatsapp
 
 You can sign out of an account that is currently saved
@@ -195,9 +193,7 @@ You can sign out of an account that is currently saved
 >>> messenger = WhatsApp()
 >>> messenger.logout()
 ```
-        
-        
-        
+
 Well! thats all for now from the package, to request new feature make an issue.
 
 ## Contributions
@@ -212,13 +208,16 @@ If you're facing any issue or difficulty with the usage of the package just rais
 
 ## Give it a star
 
-Was this useful to you ? Then give it a star so that more people can manke use of this. 
+Was this useful to you ? Then give it a star so that more people can manke use of this.
 
 ## Credits
 
 All the credits to:
 
 - [kalebu](https://github.com/kalebu)
+- [Eurico Nicacio](https://github.com/euriconicacio)
+- [Victor Daniel](https://github.com/vadolasi)
+- [Cornelius Mostert](https://github.com/theCJMan)
 - [shauryauppal](https://github.com/shauryauppal/)
 - and all the contributors
 
