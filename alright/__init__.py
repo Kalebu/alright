@@ -9,6 +9,7 @@ import sys
 import time
 import logging
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -219,7 +220,12 @@ class WhatsApp(object):
             for i in ctrl_element:
                 if i.aria_role == "textbox":
                     # This is a WhatsApp Number -> Send Message
-                    i.send_keys(message + Keys.ENTER)
+                    
+                    for line in message.split("\n"):
+                        i.send_keys(line)
+                        ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                    i.send_keys(Keys.ENTER)
+                    
                     msg = f"Message sent successfully to {mobile}"
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
@@ -253,7 +259,12 @@ class WhatsApp(object):
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
-            input_box.send_keys(message + Keys.ENTER)
+            
+            for line in message.split("\n"):
+                input_box.send_keys(line)
+                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            input_box.send_keys(Keys.ENTER)
+            
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
@@ -311,7 +322,12 @@ class WhatsApp(object):
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
-            input_box.send_keys(message)
+            
+            for line in message.split("\n"):
+                input_box.send_keys(line)
+                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            input_box.send_keys(Keys.ENTER)
+            
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
