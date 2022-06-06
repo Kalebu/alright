@@ -374,6 +374,7 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_file() finished running!")
 
+
     def close_when_message_successfully_sent(self):
         """close_when_message_successfully_sent()
 
