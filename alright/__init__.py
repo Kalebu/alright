@@ -7,6 +7,7 @@ allowing you to send messages, images, video and documents programmatically usin
 import os
 import sys
 import time
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -20,6 +21,7 @@ from selenium.common.exceptions import (
 from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import quote
 
+LOGGER = logging.getLogger()
 
 class WhatsApp(object):
     def __init__(self, browser=None, time_out=600):
@@ -38,6 +40,7 @@ class WhatsApp(object):
         self.browser = browser
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         self.wait = WebDriverWait(self.browser, time_out)
+        self.cli()
         self.login()
         self.mobile = ""
 
@@ -51,6 +54,17 @@ class WhatsApp(object):
             chrome_options.add_argument("start-maximized")
             chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
+
+    def cli(self):
+        """
+        LOGGER settings 
+        """
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s -- [%(levelname)s] >> %(message)s")
+        )
+        LOGGER.addHandler(handler)
+        LOGGER.setLevel(logging.INFO)
 
     def login(self):
         self.browser.get(self.BASE_URL)
@@ -78,13 +92,6 @@ class WhatsApp(object):
         )
         logout_item.click()
 
-    def close_browser(self):
-        """close_browser()
-
-        closes the browser window to allow repeated calls
-        """
-        self.browser.close()
-
     def get_phone_link(self, mobile) -> str:
         """get_phone_link (), create a link based on whatsapp (wa.me) api
 
@@ -106,7 +113,7 @@ class WhatsApp(object):
             alert = self.browser.switch_to_alert.accept()
             return True
         except Exception as e:
-            print(e)
+            LOGGER.exception(f"An exception occurred: {e}")
             return False
 
     def find_user(self, mobile) -> None:
@@ -127,13 +134,13 @@ class WhatsApp(object):
             time.sleep(2)
             go_to_web = self.wait.until(
                 EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="fallback_block"]/div/div/h4[2]/a')
+                    (By.XPATH, '//*[@id="fallback_block"]/div/div/a')
                 )
             )
             go_to_web.click()
             time.sleep(1)
         except UnexpectedAlertPresentException as bug:
-            print(bug)
+            LOGGER.exception(f"An exception occurred: {bug}")
             time.sleep(1)
             self.find_user(mobile)
 
@@ -155,8 +162,7 @@ class WhatsApp(object):
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
         except Exception as bug:
-            error = f"Exception raised while finding user {username}\n{bug}"
-            print(error)
+            LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
     def username_exists(self, username):
         """username_exists ()
@@ -184,8 +190,7 @@ class WhatsApp(object):
             else:
                 return False
         except Exception as bug:
-            error = f"Exception raised while finding user {username}\n{bug}"
-            print(error)
+            LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
     def send_message1(self, mobile: str, message: str):
         """CJM - 20220419:
@@ -228,11 +233,11 @@ class WhatsApp(object):
                         msg = f"Not a WhatsApp Number {mobile}"
 
         except (NoSuchElementException, Exception) as bug:
-            print(bug)
+            LOGGER.exception(f"An exception occurred: {bug}")
             msg = f"Failed to send a message to {self.mobile}"
 
         finally:
-            print(msg)
+            LOGGER.info(f"{msg}")
 
     def send_message(self, message):
         """send_message ()
@@ -249,13 +254,11 @@ class WhatsApp(object):
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
             input_box.send_keys(message + Keys.ENTER)
-            print(f"Message sent successfuly to {self.mobile}")
+            LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
-            print(bug)
-            print(f"Failed to send a message to {self.mobile}")
-
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
-            print("send_message() finished running ")
+            LOGGER.info("send_message() finished running!")
 
     def find_attachment(self):
         clipButton = self.wait.until(
@@ -310,13 +313,11 @@ class WhatsApp(object):
             )
             input_box.send_keys(message)
             self.send_attachment()
-            print(f"Picture has been successfully sent to {self.mobile}")
+            LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
-            print(bug)
-            print(f"Failed to send a picture to {self.mobile}")
-
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
-            print("send_picture() finished running ")
+            LOGGER.info("send_picture() finished running!")
 
     def send_video(self, video):
         """send_video ()
@@ -340,12 +341,12 @@ class WhatsApp(object):
             )
             video_button.send_keys(filename)
             self.send_attachment()
-            print(f"Video has been successfully sent to {self.mobile}")
+            LOGGER.info(f"Video has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
-            print(bug)
-            print(f"Failed to send a video to {self.mobile}")
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
-            print("send_video() finished running ")
+            LOGGER.info("send_video() finished running!")
+
 
     def send_file(self, filename):
         """send_file()
@@ -369,7 +370,33 @@ class WhatsApp(object):
             document_button.send_keys(filename)
             self.send_attachment()
         except (NoSuchElementException, Exception) as bug:
-            print(bug)
-            print(f"Failed to send a PDF to {self.mobile}")
+            LOGGER.exception(f"Failed to send a file to {self.mobile} - {bug}")
         finally:
-            print("send_file() finished running ")
+            LOGGER.info("send_file() finished running!")
+
+    def close_when_message_successfully_sent(self):
+        """close_when_message_successfully_sent()
+
+        Closes the browser window to allow repeated calls when message is successfully sent/received.
+        Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.
+        [This may get deprecated when an opened browser verification gets implemented, but it's pretty useful now.
+        """
+        
+        LOGGER.info("Waiting for message status update to close browser...")  
+        try:
+            # Waiting for the pending clock icon shows and disappear
+            self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+            self.wait.until_not(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
+        finally:
+            self.browser.close()
+            LOGGER.info("Browser closed.")
