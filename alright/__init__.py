@@ -379,7 +379,9 @@ class WhatsApp(object):
 
         Closes the browser window to allow repeated calls when message is successfully sent/received.
         Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.
-        [This may get deprecated when an opened browser verification gets implemented, but it's pretty useful now.
+        [This may get deprecated when an opened browser verification gets implemented, but it's pretty useful now.]
+        
+        Friendly contribution by @euriconicacio.
         """
         
         LOGGER.info("Waiting for message status update to close browser...")  
