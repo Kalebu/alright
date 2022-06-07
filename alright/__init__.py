@@ -193,6 +193,25 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
+    def get_first_chat(self):
+        """get_first_chat()
+
+        gets the first chat on the list of chats
+        """
+        try:
+            search_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="side"]/div[1]/div/div/div/div')
+                )
+            )
+            search_box.click()
+            search_box.send_keys(Keys.ARROW_DOWN)
+            chat = self.browser.switch_to.active_element
+            chat.send_keys(Keys.ENTER)
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
+
+
     def send_message1(self, mobile: str, message: str):
         """CJM - 20220419:
         Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
@@ -220,7 +239,7 @@ class WhatsApp(object):
             for i in ctrl_element:
                 if i.aria_role == "textbox":
                     # This is a WhatsApp Number -> Send Message
-                    
+
                     for line in message.split("\n"):
                         i.send_keys(line)
                         ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
@@ -259,12 +278,10 @@ class WhatsApp(object):
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
-            
             for line in message.split("\n"):
                 input_box.send_keys(line)
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
             input_box.send_keys(Keys.ENTER)
-            
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
@@ -322,12 +339,10 @@ class WhatsApp(object):
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
-            
             for line in message.split("\n"):
                 input_box.send_keys(line)
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
             input_box.send_keys(Keys.ENTER)
-            
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -363,7 +378,6 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_video() finished running!")
 
-
     def send_file(self, filename):
         """send_file()
 
@@ -389,7 +403,6 @@ class WhatsApp(object):
             LOGGER.exception(f"Failed to send a file to {self.mobile} - {bug}")
         finally:
             LOGGER.info("send_file() finished running!")
-
 
     def close_when_message_successfully_sent(self):
         """close_when_message_successfully_sent()
@@ -419,3 +432,4 @@ class WhatsApp(object):
         finally:
             self.browser.close()
             LOGGER.info("Browser closed.")
+ 
