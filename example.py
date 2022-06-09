@@ -10,4 +10,4 @@ from alright import WhatsApp
 
 msg = "hey I'm done its tuesday"
 messenger = WhatsApp()
-messenger.send_message1(2556929069077, msg)
+messenger.send_message1('2556929069077', msg)
