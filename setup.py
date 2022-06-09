@@ -7,10 +7,9 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-
 setup(
     name="alright",
-    version="2.0",
+    version="2.2",
     description="Python wrapper for WhatsApp web based on selenium",
     long_description=long_description,
     long_description_content_type="text/markdown",
