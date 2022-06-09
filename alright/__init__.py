@@ -193,10 +193,13 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
-    def get_first_chat(self):
+    def get_first_chat(self, ignore_pinned=True):
         """get_first_chat()
 
         gets the first chat on the list of chats
+
+        Args:
+            ignore_pinned (boolean): parameter that flags if the pinned chats should or not be ignored - standard value: True (it will ignore pinned chats!)
         """
         try:
             search_box = self.wait.until(
@@ -207,10 +210,54 @@ class WhatsApp(object):
             search_box.click()
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
+            time.sleep(1)
+            if ignore_pinned:
+                while True:
+                    flag = False
+                    for item in chat.find_elements(By.TAG_NAME, 'span'):
+                        if "pinned"in item.get_attribute("innerHTML"):
+                            flag = True
+                            break
+                    if not flag: break
+                    chat.send_keys(Keys.ARROW_DOWN)
+                    chat = self.browser.switch_to.active_element
+
+            name = chat.text.split('\n')[0]
+            LOGGER.info(f"Successfully selected chat \"{name}\"")
             chat.send_keys(Keys.ENTER)
+
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
+    def search_chat_by_name(self, query: str):
+        """search_chat_name()
+
+        searches for the first chat containing the query parameter
+
+        Args:
+            query (string): query value to be located in the chat name
+        """
+        try:
+            search_box = self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="side"]/div[1]/div/div/div/div')
+                )
+            )
+            search_box.click()
+            search_box.send_keys(Keys.ARROW_DOWN)
+            chat = self.browser.switch_to.active_element
+            time.sleep(1)
+            while True:
+                name = chat.text.split('\n')[0]
+                if query.upper() in name.upper():
+                    break
+                chat.send_keys(Keys.ARROW_DOWN)
+                chat = self.browser.switch_to.active_element
+            LOGGER.info(f"Successfully selected chat \"{name}\"")
+            chat.send_keys(Keys.ENTER)
+
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
     def send_message1(self, mobile: str, message: str):
         """CJM - 20220419:
