@@ -259,10 +259,16 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
-    def send_message1(self, mobile: str, message: str):
-        """CJM - 20220419:
-        Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
-        Also include the Number we want to send to"""
+        def send_message1(self, mobile: str, message: str) -> str:
+        # CJM - 20220419:
+        #   Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
+        #   Also include the Number we want to send to
+        #   Send Result
+        #   0 or Blank or NaN = Not yet sent
+        #   1 = Sent successfully
+        #   2 = Number to short
+        #   3 = Error or Failure to Send Message
+        #   4 = Not a WhatsApp Number
         try:
             # Browse to a "Blank" message state
             self.browser.get(f"https://web.whatsapp.com/send?phone={mobile}&text")
@@ -291,8 +297,8 @@ class WhatsApp(object):
                         i.send_keys(line)
                         ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
                     i.send_keys(Keys.ENTER)
-                    
-                    msg = f"Message sent successfully to {mobile}"
+
+                    msg = f"1 "  # Message was sent successfully
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
@@ -302,7 +308,7 @@ class WhatsApp(object):
                     if i.text == "OK":
                         # This is NOT a WhatsApp Number -> Press enter and continue
                         i.send_keys(Keys.ENTER)
-                        msg = f"Not a WhatsApp Number {mobile}"
+                        msg = f"4 "  # Not a WhatsApp Number
 
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
@@ -310,6 +316,8 @@ class WhatsApp(object):
 
         finally:
             LOGGER.info(f"{msg}")
+            return msg
+
 
     def send_message(self, message):
         """send_message ()
