@@ -66,6 +66,8 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 - [Send Images](#sending-images)
 - [Send Videos](#sending-videos)
 - [Send Documents](#sending-documents)
+- [Get first chat](#get-first-chat)
+- [Search chat by name](#search-chat-by-name)
 - [logout](#logout)
 
 *When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
@@ -184,6 +186,26 @@ The rest of the documents such as docx, pdf, audio etc. falls into documents cat
 >>> messenger.send_file('path-to-file')
 ```
 
+### Get first chat
+
+This method fetches the first chat in the list on the left of the web app - since they are not ordered in an expected way, a fair workaround is applied. One can also ignore or not pinned chats (placed at the top of the list) by passing the parameter *ignore_pinned* to do that - default value is `ignore_pinned=True`.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.get_first_chat()
+```
+
+### Search chat by name
+
+This method searches the opened chats by a partial name provided as a `query` parameter, returning the first match. Case sensitivity is treated and does not impact the search.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.search_chat_by_name(query="Friend")
+```
+        
 ### logout from whatsapp
 
 You can sign out of an account that is currently saved
