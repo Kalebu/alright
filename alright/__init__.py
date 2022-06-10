@@ -259,6 +259,7 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
+
     def send_message1(self, mobile: str, message: str) -> str:
         # CJM - 20220419:
         #   Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
