@@ -58,7 +58,7 @@ class WhatsApp(object):
 
     def cli(self):
         """
-        LOGGER settings 
+        LOGGER settings  [nCKbr]
         """
         handler = logging.StreamHandler()
         handler.setFormatter(
@@ -194,7 +194,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
     def get_first_chat(self, ignore_pinned=True):
-        """get_first_chat()
+        """get_first_chat()  [nCKbr]
 
         gets the first chat on the list of chats
 
@@ -230,7 +230,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
     def search_chat_by_name(self, query: str):
-        """search_chat_name()
+        """search_chat_name()  [nCKbr]
 
         searches for the first chat containing the query parameter
 
@@ -255,6 +255,36 @@ class WhatsApp(object):
                 chat = self.browser.switch_to.active_element
             LOGGER.info(f"Successfully selected chat \"{name}\"")
             chat.send_keys(Keys.ENTER)
+
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
+
+            
+    def check_if_given_chat_has_unread_messages(self, query):
+        """check_if_given_chat_has_unread_messages() [nCKbr]
+
+        identifies if a given chat has unread messages or not.
+
+        Args:
+            query (string): query value to be located in the chat name
+        """
+        try:
+            self.wait.until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                    )
+                )
+            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+            
+            for chat in list_of_messages:
+                name = chat.text.split('\n')[0]
+                if query.upper() in name.upper():
+                    maybe_new_msg = chat.text.split('\n')[-1]
+                    if maybe_new_msg and maybe_new_msg.isdigit():
+                        LOGGER.info(f"Yup, {maybe_new_msg} new message(s) on chat \"{name}\".")
+                        return True
+                    LOGGER.info(f"There are no new messages on chat \"{query}\".")
+                    return False
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
@@ -487,7 +517,7 @@ class WhatsApp(object):
             LOGGER.info("send_file() finished running!")
 
     def close_when_message_successfully_sent(self):
-        """close_when_message_successfully_sent()
+        """close_when_message_successfully_sent() [nCKbr]
 
         Closes the browser window to allow repeated calls when message is successfully sent/received.
         Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.
