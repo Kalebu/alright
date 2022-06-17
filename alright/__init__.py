@@ -343,7 +343,7 @@ class WhatsApp(object):
 
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
-            msg = f"Failed to send a message to {self.mobile}"
+            msg = f"3 "
 
         finally:
             LOGGER.info(f"{msg}")
