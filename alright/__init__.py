@@ -58,7 +58,7 @@ class WhatsApp(object):
 
     def cli(self):
         """
-        LOGGER settings 
+        LOGGER settings  [nCKbr]
         """
         handler = logging.StreamHandler()
         handler.setFormatter(
@@ -194,7 +194,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
     def get_first_chat(self, ignore_pinned=True):
-        """get_first_chat()
+        """get_first_chat()  [nCKbr]
 
         gets the first chat on the list of chats
 
@@ -230,7 +230,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
     def search_chat_by_name(self, query: str):
-        """search_chat_name()
+        """search_chat_name()  [nCKbr]
 
         searches for the first chat containing the query parameter
 
@@ -259,10 +259,47 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
-    def send_message1(self, mobile: str, message: str):
-        """CJM - 20220419:
-        Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
-        Also include the Number we want to send to"""
+            
+    def check_if_given_chat_has_unread_messages(self, query):
+        """check_if_given_chat_has_unread_messages() [nCKbr]
+
+        identifies if a given chat has unread messages or not.
+
+        Args:
+            query (string): query value to be located in the chat name
+        """
+        try:
+            self.wait.until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                    )
+                )
+            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+            
+            for chat in list_of_messages:
+                name = chat.text.split('\n')[0]
+                if query.upper() in name.upper():
+                    maybe_new_msg = chat.text.split('\n')[-1]
+                    if maybe_new_msg and maybe_new_msg.isdigit():
+                        LOGGER.info(f"Yup, {maybe_new_msg} new message(s) on chat \"{name}\".")
+                        return True
+                    LOGGER.info(f"There are no new messages on chat \"{query}\".")
+                    return False
+
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
+
+
+    def send_message1(self, mobile: str, message: str) -> str:
+        # CJM - 20220419:
+        #   Send WhatsApp Message With Different URL, NOT using https://wa.me/ to prevent WhatsApp Desktop to open
+        #   Also include the Number we want to send to
+        #   Send Result
+        #   0 or Blank or NaN = Not yet sent
+        #   1 = Sent successfully
+        #   2 = Number to short
+        #   3 = Error or Failure to Send Message
+        #   4 = Not a WhatsApp Number
         try:
             # Browse to a "Blank" message state
             self.browser.get(f"https://web.whatsapp.com/send?phone={mobile}&text")
@@ -291,8 +328,8 @@ class WhatsApp(object):
                         i.send_keys(line)
                         ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
                     i.send_keys(Keys.ENTER)
-                    
-                    msg = f"Message sent successfully to {mobile}"
+
+                    msg = f"1 "  # Message was sent successfully
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
@@ -302,7 +339,7 @@ class WhatsApp(object):
                     if i.text == "OK":
                         # This is NOT a WhatsApp Number -> Press enter and continue
                         i.send_keys(Keys.ENTER)
-                        msg = f"Not a WhatsApp Number {mobile}"
+                        msg = f"4 "  # Not a WhatsApp Number
 
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
@@ -310,6 +347,7 @@ class WhatsApp(object):
 
         finally:
             LOGGER.info(f"{msg}")
+            return msg
 
     def send_message(self, message):
         """send_message ()
@@ -344,6 +382,7 @@ class WhatsApp(object):
         clipButton.click()
 
     def send_attachment(self):
+
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
             EC.presence_of_element_located(
@@ -360,6 +399,14 @@ class WhatsApp(object):
             )
         )
         sendButton.click()
+
+        # Waiting for the pending clock icon to disappear again - workaround for large files or loading videos.
+        # Appropriate solution for the presented issue. [nCKbr]
+        self.wait.until_not(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+            )
+        )
 
     def send_picture(self, picture, message):
         """send_picture ()
@@ -397,29 +444,57 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_picture() finished running!")
 
+
+    def convert_bytes(self, size) -> str:
+        # CJM - 2022/06/10:
+        # Convert bytes to KB, or MB or GB
+        for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+            if size < 1024.0:
+                return "%3.1f %s" % (size, x)
+            size /= 1024.0
+
+    def convert_bytes_to(self, size, to):
+        # CJM - 2022 / 06 / 10:
+        # Returns Bytes as 'KB', 'MB', 'GB', 'TB'
+        conv_to = to.upper()
+        if conv_to in ['BYTES', 'KB', 'MB', 'GB', 'TB']:
+            for x in ['BYTES', 'KB', 'MB', 'GB', 'TB']:
+                if x == conv_to:
+                    return size
+                size /= 1024.0
+
     def send_video(self, video):
         """send_video ()
-
         Sends a video to a target user
-
+        CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
+        
         Args:
-            video ([type]): [description]
+            video ([type]): the video file to be sent.
         """
+        import pdb; pdb.set_trace()
         try:
             filename = os.path.realpath(video)
-            self.find_attachment()
-            # To send a Video
-            video_button = self.wait.until(
-                EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+            f_size = os.path.getsize(filename)
+            x = self.convert_bytes_to(f_size, 'MB')
+            if x < 14:
+                # File is less than 14MB
+                self.find_attachment()
+                # To send a Video
+                video_button = self.wait.until(
+                    EC.presence_of_element_located(
+                        (
+                            By.XPATH,
+                            '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                        )
                     )
                 )
-            )
-            video_button.send_keys(filename)
-            self.send_attachment()
-            LOGGER.info(f"Video has been successfully sent to {self.mobile}")
+
+                video_button.send_keys(filename)
+
+                self.send_attachment()
+                LOGGER.info(f"Video has been successfully sent to {self.mobile}")
+            else:
+                LOGGER.info(f"Video larger than 14MB")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
@@ -452,7 +527,7 @@ class WhatsApp(object):
             LOGGER.info("send_file() finished running!")
 
     def close_when_message_successfully_sent(self):
-        """close_when_message_successfully_sent()
+        """close_when_message_successfully_sent() [nCKbr]
 
         Closes the browser window to allow repeated calls when message is successfully sent/received.
         Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.

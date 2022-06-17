@@ -186,6 +186,16 @@ The rest of the documents such as docx, pdf, audio etc. falls into documents cat
 >>> messenger.send_file('path-to-file')
 ```
 
+### Check if a chat has unread messages or not
+
+This method checks if a chat, which name is passed as a *query* parameter, has got unread messages or not.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.check_if_given_chat_has_unread_messages(query="Chat 123")
+```
+        
 ### Get first chat
 
 This method fetches the first chat in the list on the left of the web app - since they are not ordered in an expected way, a fair workaround is applied. One can also ignore or not pinned chats (placed at the top of the list) by passing the parameter *ignore_pinned* to do that - default value is `ignore_pinned=True`.
