@@ -382,6 +382,7 @@ class WhatsApp(object):
         clipButton.click()
 
     def send_attachment(self):
+
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
             EC.presence_of_element_located(
@@ -398,6 +399,14 @@ class WhatsApp(object):
             )
         )
         sendButton.click()
+
+        # Waiting for the pending clock icon to disappear again - workaround for large files or loading videos.
+        # Appropriate solution for the presented issue. [nCKbr]
+        self.wait.until_not(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+            )
+        )
 
     def send_picture(self, picture, message):
         """send_picture ()
@@ -460,9 +469,9 @@ class WhatsApp(object):
         CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
         
         Args:
-            video ([type]): [description]
+            video ([type]): the video file to be sent.
         """
-        
+        import pdb; pdb.set_trace()
         try:
             filename = os.path.realpath(video)
             f_size = os.path.getsize(filename)
@@ -481,6 +490,7 @@ class WhatsApp(object):
                 )
 
                 video_button.send_keys(filename)
+
                 self.send_attachment()
                 LOGGER.info(f"Video has been successfully sent to {self.mobile}")
             else:
