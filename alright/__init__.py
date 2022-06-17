@@ -58,7 +58,7 @@ class WhatsApp(object):
 
     def cli(self):
         """
-        LOGGER settings  [nCKbr]
+        LOGGER settings 
         """
         handler = logging.StreamHandler()
         handler.setFormatter(
@@ -194,7 +194,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
 
     def get_first_chat(self, ignore_pinned=True):
-        """get_first_chat()  [nCKbr]
+        """get_first_chat()
 
         gets the first chat on the list of chats
 
@@ -230,7 +230,7 @@ class WhatsApp(object):
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
     def search_chat_by_name(self, query: str):
-        """search_chat_name()  [nCKbr]
+        """search_chat_name()
 
         searches for the first chat containing the query parameter
 
@@ -258,37 +258,6 @@ class WhatsApp(object):
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
-
-            
-    def check_if_given_chat_has_unread_messages(self, query):
-        """check_if_given_chat_has_unread_messages() [nCKbr]
-
-        identifies if a given chat has unread messages or not.
-
-        Args:
-            query (string): query value to be located in the chat name
-        """
-        try:
-            self.wait.until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-                    )
-                )
-            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-            
-            for chat in list_of_messages:
-                name = chat.text.split('\n')[0]
-                if query.upper() in name.upper():
-                    maybe_new_msg = chat.text.split('\n')[-1]
-                    if maybe_new_msg and maybe_new_msg.isdigit():
-                        LOGGER.info(f"Yup, {maybe_new_msg} new message(s) on chat \"{name}\".")
-                        return True
-                    LOGGER.info(f"There are no new messages on chat \"{query}\".")
-                    return False
-
-        except Exception as bug:
-            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
-
 
     def send_message1(self, mobile: str, message: str) -> str:
         # CJM - 20220419:
@@ -343,7 +312,9 @@ class WhatsApp(object):
 
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
-            msg = f"Failed to send a message to {self.mobile}"
+            msg = f"3 "
+            # Let things calm down, sleep for 3 seconds
+            time.sleep(3)
 
         finally:
             LOGGER.info(f"{msg}")
@@ -435,7 +406,6 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_picture() finished running!")
 
-
     def convert_bytes(self, size) -> str:
         # CJM - 2022/06/10:
         # Convert bytes to KB, or MB or GB
@@ -454,15 +424,17 @@ class WhatsApp(object):
                     return size
                 size /= 1024.0
 
-    def send_video(self, video):
+    def send_video(self, video, rest=5):
         """send_video ()
         Sends a video to a target user
         CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
-        
+            - Also added rest param, seems loading vids stugle 
+
         Args:
             video ([type]): [description]
+            rest ([type]): how long to sleep with video load
         """
-        
+
         try:
             filename = os.path.realpath(video)
             f_size = os.path.getsize(filename)
@@ -482,6 +454,7 @@ class WhatsApp(object):
 
                 video_button.send_keys(filename)
                 self.send_attachment()
+                time.sleep(rest)
                 LOGGER.info(f"Video has been successfully sent to {self.mobile}")
             else:
                 LOGGER.info(f"Video larger than 14MB")
@@ -517,7 +490,7 @@ class WhatsApp(object):
             LOGGER.info("send_file() finished running!")
 
     def close_when_message_successfully_sent(self):
-        """close_when_message_successfully_sent() [nCKbr]
+        """close_when_message_successfully_sent()
 
         Closes the browser window to allow repeated calls when message is successfully sent/received.
         Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.
