@@ -216,6 +216,16 @@ This method searches the opened chats by a partial name provided as a `query` pa
 >>> messenger.search_chat_by_name(query="Friend")
 ```
         
+### Get last message received in a given chat
+
+This method searches for the last message received in a given chate, received as a `query` parameter, returning the sender, text and time. Groups, numbers and contacts cases are treated, as well as possible non-received messages, video/images/stickers and others.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.get_last_message_received(query="Friend")
+```
+        
 ### logout from whatsapp
 
 You can sign out of an account that is currently saved
