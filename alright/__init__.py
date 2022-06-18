@@ -153,17 +153,26 @@ class WhatsApp(object):
         Args:
             username ([type]): [description]
         """
-        try:
-            search_box = self.wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]')
-                )
+        search_box = self.wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]')
             )
-            search_box.clear()
-            search_box.send_keys(username)
-            search_box.send_keys(Keys.ENTER)
-        except Exception as bug:
-            LOGGER.exception(f"Exception raised while finding user {username}\n{bug}")
+        )
+        search_box.clear()
+        search_box.send_keys(username)
+        search_box.send_keys(Keys.ENTER)
+        try:
+            opened_chat = self.browser.find_elements_by_xpath(
+                '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
+            )
+            if len(opened_chat):
+                title = opened_chat[0].get_attribute("title")
+                if title.upper() == username.upper():
+                    LOGGER.info(f"Successfully fetched chat \"{username}\"")
+            else:
+                LOGGER.info(f"It was not possible to fetch chat \"{username}\"")
+        except NoSuchElementException:
+            LOGGER.exception(f"It was not possible to fetch chat \"{username}\"")
 
     def username_exists(self, username):
         """username_exists ()
@@ -246,15 +255,28 @@ class WhatsApp(object):
             search_box.click()
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
+            
+            # excepcitonally acceptable here!
             time.sleep(1)
+            flag = False
+            prev_name = ""
+            name = ""
             while True:
+                prev_name = name
                 name = chat.text.split('\n')[0]
                 if query.upper() in name.upper():
+                    flag = True
                     break
                 chat.send_keys(Keys.ARROW_DOWN)
                 chat = self.browser.switch_to.active_element
-            LOGGER.info(f"Successfully selected chat \"{name}\"")
-            chat.send_keys(Keys.ENTER)
+                if prev_name == name: break
+            if flag:
+                LOGGER.info(f"Successfully selected chat \"{name}\"")
+                chat.send_keys(Keys.ENTER)
+            else:
+                LOGGER.info(f"Could not locate chat \"{query}\"")
+                search_box.click()
+                search_box.send_keys(Keys.ESCAPE)
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
@@ -471,7 +493,6 @@ class WhatsApp(object):
         Args:
             video ([type]): the video file to be sent.
         """
-        import pdb; pdb.set_trace()
         try:
             filename = os.path.realpath(video)
             f_size = os.path.getsize(filename)
@@ -554,4 +575,3 @@ class WhatsApp(object):
         finally:
             self.browser.close()
             LOGGER.info("Browser closed.")
- 
