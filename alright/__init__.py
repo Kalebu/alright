@@ -224,7 +224,7 @@ class WhatsApp(object):
                 while True:
                     flag = False
                     for item in chat.find_elements(By.TAG_NAME, 'span'):
-                        if "pinned"in item.get_attribute("innerHTML"):
+                        if "pinned" in item.get_attribute("innerHTML"):
                             flag = True
                             break
                     if not flag: break
@@ -575,3 +575,59 @@ class WhatsApp(object):
         finally:
             self.browser.close()
             LOGGER.info("Browser closed.")
+ 
+    def get_last_message_received(self, query: str):
+        """get_last_message_received() [nCKbr]
+
+        fetches the last message receive in a given chat, along with couple metadata, retrieved by the "query" parameter provided.
+
+        Args:
+            query (string): query value to be located in the chat name
+        """
+        try:
+            self.wait.until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                    )
+                )
+
+            self.find_by_username(query)
+
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]')))
+
+            time.sleep(3) # clueless on why the previous wait is not respected - we need this sleep to load tha list.
+            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]')
+
+            if len(list_of_messages) == 0:
+                LOGGER.exception("It was not possible to retrieve the last message - probably it does not exist.")
+            else:
+                msg = list_of_messages[-1]
+
+                if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-user":
+                    msg_sender = query
+                else:    
+                    msg_sender = msg.text.split('\n')[0]
+
+                if len(msg.text.split('\n')) > 1:
+                    when = msg.text.split('\n')[-1]
+                    msg = msg.text.split('\n') if "media-play" not in msg.get_attribute("innerHTML") else "Video or Image"
+                else:
+                    when = msg.text.split('\n')[0]
+                    msg = "Non-text message (maybe emoji?)"
+
+                if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-group" and msg_sender.strip() in self.browser.find_element_by_xpath('//div[@id="main"]/header/div[2]/div[2]/span').text: # it is a group
+                    LOGGER.info(f"Message sender: {msg_sender}.")
+                elif msg_sender.strip() != msg[0].strip(): # it is not a messages combo
+                    LOGGER.info(f"Message sender: {msg_sender}.")
+                else:
+                    LOGGER.info(f"Message sender: retrievable from previous messages.")
+                
+                # DISCLAIMER: messages answering other messages carry the previous ones in the text.
+                # Example: Message text: ['John', 'Mary', 'Hi, John!', 'Hi, Mary! How are you?', '14:01']
+                # TODO: Implement 'filter_answer' boolean paramenter to sanitize this text based on previous messages search.
+
+                LOGGER.info(f"Message text: {msg}.")
+                LOGGER.info(f"Message time: {when}.")
+           
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
