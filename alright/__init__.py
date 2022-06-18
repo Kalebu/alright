@@ -609,11 +609,6 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
-            self.wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-                )
-            )
 
             if self.find_by_username(query):
 
