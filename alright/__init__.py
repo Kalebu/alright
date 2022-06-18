@@ -24,6 +24,7 @@ from urllib.parse import quote
 
 LOGGER = logging.getLogger()
 
+
 class WhatsApp(object):
     def __init__(self, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
@@ -43,7 +44,6 @@ class WhatsApp(object):
                 if handles[x] != browser.current_window_handle:
                     browser.switch_to.window(handles[x])
                     browser.close()
-
 
         self.browser = browser
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
@@ -69,7 +69,9 @@ class WhatsApp(object):
         """
         handler = logging.StreamHandler()
         handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(name)s -- [%(levelname)s] >> %(message)s")
+            logging.Formatter(
+                "%(asctime)s - %(name)s -- [%(levelname)s] >> %(message)s"
+            )
         )
         LOGGER.addHandler(handler)
         LOGGER.setLevel(logging.INFO)
@@ -162,7 +164,10 @@ class WhatsApp(object):
         """
         search_box = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]')
+                (
+                    By.XPATH,
+                    '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]',
+                )
             )
         )
         search_box.clear()
@@ -175,13 +180,13 @@ class WhatsApp(object):
             if len(opened_chat):
                 title = opened_chat[0].get_attribute("title")
                 if title.upper() == username.upper():
-                    LOGGER.info(f"Successfully fetched chat \"{username}\"")
+                    LOGGER.info(f'Successfully fetched chat "{username}"')
                 return True
             else:
-                LOGGER.info(f"It was not possible to fetch chat \"{username}\"")
+                LOGGER.info(f'It was not possible to fetch chat "{username}"')
                 return False
         except NoSuchElementException:
-            LOGGER.exception(f"It was not possible to fetch chat \"{username}\"")
+            LOGGER.exception(f'It was not possible to fetch chat "{username}"')
             return False
 
     def username_exists(self, username):
@@ -233,16 +238,17 @@ class WhatsApp(object):
             if ignore_pinned:
                 while True:
                     flag = False
-                    for item in chat.find_elements(By.TAG_NAME, 'span'):
+                    for item in chat.find_elements(By.TAG_NAME, "span"):
                         if "pinned" in item.get_attribute("innerHTML"):
                             flag = True
                             break
-                    if not flag: break
+                    if not flag:
+                        break
                     chat.send_keys(Keys.ARROW_DOWN)
                     chat = self.browser.switch_to.active_element
 
-            name = chat.text.split('\n')[0]
-            LOGGER.info(f"Successfully selected chat \"{name}\"")
+            name = chat.text.split("\n")[0]
+            LOGGER.info(f'Successfully selected chat "{name}"')
             chat.send_keys(Keys.ENTER)
 
         except Exception as bug:
@@ -265,7 +271,7 @@ class WhatsApp(object):
             search_box.click()
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
-            
+
             # excepcitonally acceptable here!
             time.sleep(1)
             flag = False
@@ -273,25 +279,25 @@ class WhatsApp(object):
             name = ""
             while True:
                 prev_name = name
-                name = chat.text.split('\n')[0]
+                name = chat.text.split("\n")[0]
                 if query.upper() in name.upper():
                     flag = True
                     break
                 chat.send_keys(Keys.ARROW_DOWN)
                 chat = self.browser.switch_to.active_element
-                if prev_name == name: break
+                if prev_name == name:
+                    break
             if flag:
-                LOGGER.info(f"Successfully selected chat \"{name}\"")
+                LOGGER.info(f'Successfully selected chat "{name}"')
                 chat.send_keys(Keys.ENTER)
             else:
-                LOGGER.info(f"Could not locate chat \"{query}\"")
+                LOGGER.info(f'Could not locate chat "{query}"')
                 search_box.click()
                 search_box.send_keys(Keys.ESCAPE)
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
-            
     def check_if_given_chat_has_unread_messages(self, query):
         """check_if_given_chat_has_unread_messages() [nCKbr]
 
@@ -302,25 +308,28 @@ class WhatsApp(object):
         """
         try:
             self.wait.until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-                    )
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
                 )
-            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-            
+            )
+            list_of_messages = self.browser.find_elements_by_xpath(
+                '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div'
+            )
+
             for chat in list_of_messages:
-                name = chat.text.split('\n')[0]
+                name = chat.text.split("\n")[0]
                 if query.upper() in name.upper():
-                    maybe_new_msg = chat.text.split('\n')[-1]
+                    maybe_new_msg = chat.text.split("\n")[-1]
                     if maybe_new_msg and maybe_new_msg.isdigit():
-                        LOGGER.info(f"Yup, {maybe_new_msg} new message(s) on chat \"{name}\".")
+                        LOGGER.info(
+                            f'Yup, {maybe_new_msg} new message(s) on chat "{name}".'
+                        )
                         return True
-                    LOGGER.info(f"There are no new messages on chat \"{query}\".")
+                    LOGGER.info(f'There are no new messages on chat "{query}".')
                     return False
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
-
 
     def send_message1(self, mobile: str, message: str) -> str:
         # CJM - 20220419:
@@ -358,7 +367,9 @@ class WhatsApp(object):
 
                     for line in message.split("\n"):
                         i.send_keys(line)
-                        ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                        ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
+                            Keys.ENTER
+                        ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
                     i.send_keys(Keys.ENTER)
 
                     msg = f"1 "  # Message was sent successfully
@@ -397,7 +408,9 @@ class WhatsApp(object):
             )
             for line in message.split("\n"):
                 input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
+                    Keys.ENTER
+                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -467,7 +480,9 @@ class WhatsApp(object):
             )
             for line in message.split("\n"):
                 input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
+                    Keys.ENTER
+                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
             input_box.send_keys(Keys.ENTER)
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
@@ -476,11 +491,10 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_picture() finished running!")
 
-
     def convert_bytes(self, size) -> str:
         # CJM - 2022/06/10:
         # Convert bytes to KB, or MB or GB
-        for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+        for x in ["bytes", "KB", "MB", "GB", "TB"]:
             if size < 1024.0:
                 return "%3.1f %s" % (size, x)
             size /= 1024.0
@@ -489,8 +503,8 @@ class WhatsApp(object):
         # CJM - 2022 / 06 / 10:
         # Returns Bytes as 'KB', 'MB', 'GB', 'TB'
         conv_to = to.upper()
-        if conv_to in ['BYTES', 'KB', 'MB', 'GB', 'TB']:
-            for x in ['BYTES', 'KB', 'MB', 'GB', 'TB']:
+        if conv_to in ["BYTES", "KB", "MB", "GB", "TB"]:
+            for x in ["BYTES", "KB", "MB", "GB", "TB"]:
                 if x == conv_to:
                     return size
                 size /= 1024.0
@@ -499,14 +513,14 @@ class WhatsApp(object):
         """send_video ()
         Sends a video to a target user
         CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
-        
+
         Args:
             video ([type]): the video file to be sent.
         """
         try:
             filename = os.path.realpath(video)
             f_size = os.path.getsize(filename)
-            x = self.convert_bytes_to(f_size, 'MB')
+            x = self.convert_bytes_to(f_size, "MB")
             if x < 14:
                 # File is less than 14MB
                 self.find_attachment()
@@ -563,11 +577,11 @@ class WhatsApp(object):
         Closes the browser window to allow repeated calls when message is successfully sent/received.
         Ideal for recurrent/scheduled messages that would not be sent if a browser is already opened.
         [This may get deprecated when an opened browser verification gets implemented, but it's pretty useful now.]
-        
+
         Friendly contribution by @euriconicacio.
         """
-        
-        LOGGER.info("Waiting for message status update to close browser...")  
+
+        LOGGER.info("Waiting for message status update to close browser...")
         try:
             # Waiting for the pending clock icon shows and disappear
             self.wait.until(
@@ -585,7 +599,7 @@ class WhatsApp(object):
         finally:
             self.browser.close()
             LOGGER.info("Browser closed.")
- 
+
     def get_last_message_received(self, query: str):
         """get_last_message_received() [nCKbr]
 
@@ -596,48 +610,83 @@ class WhatsApp(object):
         """
         try:
             self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                )
+            )
+
+            if self.find_by_username(query):
+
+                self.wait.until(
                     EC.presence_of_element_located(
-                        (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                        (
+                            By.XPATH,
+                            '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]',
+                        )
                     )
                 )
 
-            if self.find_by_username(query): 
-
-                self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]')))
-
-                time.sleep(3) # clueless on why the previous wait is not respected - we need this sleep to load tha list.
-                list_of_messages = self.browser.find_elements_by_xpath('//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]')
+                time.sleep(
+                    3
+                )  # clueless on why the previous wait is not respected - we need this sleep to load tha list.
+                list_of_messages = self.browser.find_elements_by_xpath(
+                    '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]'
+                )
 
                 if len(list_of_messages) == 0:
-                    LOGGER.exception("It was not possible to retrieve the last message - probably it does not exist.")
+                    LOGGER.exception(
+                        "It was not possible to retrieve the last message - probably it does not exist."
+                    )
                 else:
                     msg = list_of_messages[-1]
 
-                    if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-user":
+                    if (
+                        self.browser.find_element_by_xpath(
+                            '//div[@id="main"]/header/div[1]/div[1]/div[1]/span'
+                        ).get_attribute("data-testid")
+                        == "default-user"
+                    ):
                         msg_sender = query
-                    else:    
-                        msg_sender = msg.text.split('\n')[0]
-
-                    if len(msg.text.split('\n')) > 1:
-                        when = msg.text.split('\n')[-1]
-                        msg = msg.text.split('\n') if "media-play" not in msg.get_attribute("innerHTML") else "Video or Image"
                     else:
-                        when = msg.text.split('\n')[0]
+                        msg_sender = msg.text.split("\n")[0]
+
+                    if len(msg.text.split("\n")) > 1:
+                        when = msg.text.split("\n")[-1]
+                        msg = (
+                            msg.text.split("\n")
+                            if "media-play" not in msg.get_attribute("innerHTML")
+                            else "Video or Image"
+                        )
+                    else:
+                        when = msg.text.split("\n")[0]
                         msg = "Non-text message (maybe emoji?)"
 
-                    if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-group" and msg_sender.strip() in self.browser.find_element_by_xpath('//div[@id="main"]/header/div[2]/div[2]/span').text: # it is a group
+                    if (
+                        self.browser.find_element_by_xpath(
+                            '//div[@id="main"]/header/div[1]/div[1]/div[1]/span'
+                        ).get_attribute("data-testid")
+                        == "default-group"
+                        and msg_sender.strip()
+                        in self.browser.find_element_by_xpath(
+                            '//div[@id="main"]/header/div[2]/div[2]/span'
+                        ).text
+                    ):  # it is a group
                         LOGGER.info(f"Message sender: {msg_sender}.")
-                    elif msg_sender.strip() != msg[0].strip(): # it is not a messages combo
+                    elif (
+                        msg_sender.strip() != msg[0].strip()
+                    ):  # it is not a messages combo
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     else:
-                        LOGGER.info(f"Message sender: retrievable from previous messages.")
-                    
+                        LOGGER.info(
+                            f"Message sender: retrievable from previous messages."
+                        )
+
                     # DISCLAIMER: messages answering other messages carry the previous ones in the text.
                     # Example: Message text: ['John', 'Mary', 'Hi, John!', 'Hi, Mary! How are you?', '14:01']
                     # TODO: Implement 'filter_answer' boolean paramenter to sanitize this text based on previous messages search.
 
                     LOGGER.info(f"Message text: {msg}.")
                     LOGGER.info(f"Message time: {when}.")
-           
+
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
