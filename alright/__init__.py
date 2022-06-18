@@ -38,6 +38,13 @@ class WhatsApp(object):
                 options=self.chrome_options,
             )
 
+            handles = browser.window_handles
+            for x in range(len(handles)):
+                if handles[x] != browser.current_window_handle:
+                    browser.switch_to.window(handles[x])
+                    browser.close()
+
+
         self.browser = browser
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         self.wait = WebDriverWait(self.browser, time_out)
@@ -169,10 +176,13 @@ class WhatsApp(object):
                 title = opened_chat[0].get_attribute("title")
                 if title.upper() == username.upper():
                     LOGGER.info(f"Successfully fetched chat \"{username}\"")
+                return True
             else:
                 LOGGER.info(f"It was not possible to fetch chat \"{username}\"")
+                return False
         except NoSuchElementException:
             LOGGER.exception(f"It was not possible to fetch chat \"{username}\"")
+            return False
 
     def username_exists(self, username):
         """username_exists ()
@@ -591,43 +601,43 @@ class WhatsApp(object):
                     )
                 )
 
-            self.find_by_username(query)
+            if self.find_by_username(query): 
 
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]')))
+                self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]')))
 
-            time.sleep(3) # clueless on why the previous wait is not respected - we need this sleep to load tha list.
-            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]')
+                time.sleep(3) # clueless on why the previous wait is not respected - we need this sleep to load tha list.
+                list_of_messages = self.browser.find_elements_by_xpath('//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]')
 
-            if len(list_of_messages) == 0:
-                LOGGER.exception("It was not possible to retrieve the last message - probably it does not exist.")
-            else:
-                msg = list_of_messages[-1]
-
-                if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-user":
-                    msg_sender = query
-                else:    
-                    msg_sender = msg.text.split('\n')[0]
-
-                if len(msg.text.split('\n')) > 1:
-                    when = msg.text.split('\n')[-1]
-                    msg = msg.text.split('\n') if "media-play" not in msg.get_attribute("innerHTML") else "Video or Image"
+                if len(list_of_messages) == 0:
+                    LOGGER.exception("It was not possible to retrieve the last message - probably it does not exist.")
                 else:
-                    when = msg.text.split('\n')[0]
-                    msg = "Non-text message (maybe emoji?)"
+                    msg = list_of_messages[-1]
 
-                if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-group" and msg_sender.strip() in self.browser.find_element_by_xpath('//div[@id="main"]/header/div[2]/div[2]/span').text: # it is a group
-                    LOGGER.info(f"Message sender: {msg_sender}.")
-                elif msg_sender.strip() != msg[0].strip(): # it is not a messages combo
-                    LOGGER.info(f"Message sender: {msg_sender}.")
-                else:
-                    LOGGER.info(f"Message sender: retrievable from previous messages.")
-                
-                # DISCLAIMER: messages answering other messages carry the previous ones in the text.
-                # Example: Message text: ['John', 'Mary', 'Hi, John!', 'Hi, Mary! How are you?', '14:01']
-                # TODO: Implement 'filter_answer' boolean paramenter to sanitize this text based on previous messages search.
+                    if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-user":
+                        msg_sender = query
+                    else:    
+                        msg_sender = msg.text.split('\n')[0]
 
-                LOGGER.info(f"Message text: {msg}.")
-                LOGGER.info(f"Message time: {when}.")
+                    if len(msg.text.split('\n')) > 1:
+                        when = msg.text.split('\n')[-1]
+                        msg = msg.text.split('\n') if "media-play" not in msg.get_attribute("innerHTML") else "Video or Image"
+                    else:
+                        when = msg.text.split('\n')[0]
+                        msg = "Non-text message (maybe emoji?)"
+
+                    if self.browser.find_element_by_xpath('//div[@id="main"]/header/div[1]/div[1]/div[1]/span').get_attribute("data-testid") == "default-group" and msg_sender.strip() in self.browser.find_element_by_xpath('//div[@id="main"]/header/div[2]/div[2]/span').text: # it is a group
+                        LOGGER.info(f"Message sender: {msg_sender}.")
+                    elif msg_sender.strip() != msg[0].strip(): # it is not a messages combo
+                        LOGGER.info(f"Message sender: {msg_sender}.")
+                    else:
+                        LOGGER.info(f"Message sender: retrievable from previous messages.")
+                    
+                    # DISCLAIMER: messages answering other messages carry the previous ones in the text.
+                    # Example: Message text: ['John', 'Mary', 'Hi, John!', 'Hi, Mary! How are you?', '14:01']
+                    # TODO: Implement 'filter_answer' boolean paramenter to sanitize this text based on previous messages search.
+
+                    LOGGER.info(f"Message text: {msg}.")
+                    LOGGER.info(f"Message time: {when}.")
            
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
