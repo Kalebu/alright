@@ -694,6 +694,11 @@ class WhatsApp(object):
         Args:
             limit (boolean): should we limit the counting to a certain number of chats (True) or let it count it all (False)? [default = True]
             top (int): once limiting, what is the *approximate* number of chats that should be considered? [generally, there are natural chunks of 10-22]
+        
+        DISCLAIMER: Apparently, fetch_all_unread_chats functionallity works on most updated browser versions 
+        (for example, Chrome Version 102.0.5005.115 (Official Build) (x86_64)). If it fails with you, please 
+        consider updating your browser while we work on an alternative for non-updated broswers.
+        
         """
         try:
             self.wait.until(
