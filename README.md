@@ -218,12 +218,22 @@ This method searches the opened chats by a partial name provided as a `query` pa
         
 ### Get last message received in a given chat
 
-This method searches for the last message received in a given chate, received as a `query` parameter, returning the sender, text and time. Groups, numbers and contacts cases are treated, as well as possible non-received messages, video/images/stickers and others.
+This method searches for the last message received in a given chat, received as a `query` parameter, returning the sender, text and time. Groups, numbers and contacts cases are treated, as well as possible non-received messages, video/images/stickers and others.
 
 ```python
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.get_last_message_received(query="Friend")
+```
+        
+### Retrieve all chat names with unread messages
+
+This method searches for all chats with unread messages, possibly receiving parameters to `limit` the search to a `top` number of chats or not, returning a list of chat names.
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.fetch_all_unread_chats(limit=True, top=30)
 ```
         
 ### logout from whatsapp
