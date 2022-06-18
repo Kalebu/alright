@@ -235,6 +235,8 @@ This method searches for all chats with unread messages, possibly receiving para
 >>> messenger = WhatsApp()
 >>> messenger.fetch_all_unread_chats(limit=True, top=30)
 ```
+
+#### DISCLAIMER: Apparently, `fetch_all_unread_chats` functionallity works on most updated browser versions (for example, `Chrome Version 102.0.5005.115 (Official Build) (x86_64)`). If it fails with you, please consider updating your browser while we work on an alternative for non-updated broswers.
         
 ### logout from whatsapp
 
