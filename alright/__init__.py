@@ -685,3 +685,56 @@ class WhatsApp(object):
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
+            
+    def fetch_all_unread_chats(self, limit=True, top=50):
+        """fetch_all_unread_chats()  [nCKbr]
+
+        retrieve all unread chats.
+        
+        Args:
+            limit (boolean): should we limit the counting to a certain number of chats (True) or let it count it all (False)? [default = True]
+            top (int): once limiting, what is the *approximate* number of chats that should be considered? [generally, there are natural chunks of 10-22]
+        """
+        try:
+            self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="side"]/div[1]/div/div/div/div')
+                )
+            )
+            counter = 0
+            
+            pane = self.browser.find_element_by_xpath('//div[@id="pane-side"]/div[1]')
+            time.sleep(5) # needed, fgs.
+            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+            read_names = []
+            names = []
+
+            while True:
+                last_counter = counter
+                for item in list_of_messages:
+                    name = item.text.split('\n')[0]
+                    if name not in read_names:
+                        read_names.append(name)
+                        counter += 1
+                    if self.check_if_given_chat_has_unread_messages(name):
+                        if name not in names: names.append(name)
+                
+                pane.send_keys(Keys.PAGE_DOWN)
+                pane.send_keys(Keys.PAGE_DOWN)
+               
+                time.sleep(5) # needed, fgs.
+                self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div[last()]')[0].text
+                list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+
+                if last_counter == counter and int(counter) >= int(self.browser.find_element_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]').get_attribute("aria-rowcount"))*0.9: break
+                if limit and counter >= top: break
+                
+                LOGGER.info(f"The counter value at this chunk is: {counter}.")
+                
+            if limit:
+                LOGGER.info(f"The list of unread chats, considering the first {counter} messages, is: {names}.")
+            else:
+                LOGGER.info(f"The list of all unread chats is: {names}.")
+
+        except Exception as bug:
+            LOGGER.exception(f"Exception raised while getting first chat: {bug}")
