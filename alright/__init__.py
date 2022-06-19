@@ -4,6 +4,7 @@ allowing you to send messages, images, video and documents programmatically usin
 """
 
 
+from email import message
 import os
 import sys
 import time
@@ -298,6 +299,85 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
 
+    def get_list_of_messages(self):
+        """get_list_of_messages()
+
+        gets the list of messages in the page
+        """
+        messages = self.wait.until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, '//*[@id="pane-side"]/div[2]/div/div/child::div')
+            )
+        )
+
+        clean_messages = []
+        for message in messages:
+            _message = message.text.split("\n")
+            if len(_message) == 2:
+                clean_messages.append(
+                    {
+                        "sender": _message[0],
+                        "time": _message[1],
+                        "message": "",
+                        "unread": False,
+                        "no_of_unread": 0,
+                        "group": False,
+                    }
+                )
+            elif len(_message) == 3:
+                clean_messages.append(
+                    {
+                        "sender": _message[0],
+                        "time": _message[1],
+                        "message": _message[2],
+                        "unread": False,
+                        "no_of_unread": 0,
+                        "group": False,
+                    }
+                )
+            elif len(_message) == 4:
+                clean_messages.append(
+                    {
+                        "sender": _message[0],
+                        "time": _message[1],
+                        "message": _message[2],
+                        "unread": _message[-1].isdigit(),
+                        "no_of_unread": int(_message[-1])
+                        if _message[-1].isdigit()
+                        else 0,
+                        "group": False,
+                    }
+                )
+            elif len(_message) == 5:
+                clean_messages.append(
+                    {
+                        "sender": _message[0],
+                        "time": _message[1],
+                        "message": "",
+                        "unread": _message[-1].isdigit(),
+                        "no_of_unread": int(_message[-1])
+                        if _message[-1].isdigit()
+                        else 0,
+                        "group": True,
+                    }
+                )
+            elif len(_message) == 6:
+                clean_messages.append(
+                    {
+                        "sender": _message[0],
+                        "time": _message[1],
+                        "message": _message[4],
+                        "unread": _message[-1].isdigit(),
+                        "no_of_unread": int(_message[-1])
+                        if _message[-1].isdigit()
+                        else 0,
+                        "group": True,
+                    }
+                )
+            else:
+                LOGGER.info(f"Unknown message format: {_message}")
+        return clean_messages
+
     def check_if_given_chat_has_unread_messages(self, query):
         """check_if_given_chat_has_unread_messages() [nCKbr]
 
@@ -307,26 +387,17 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
-            self.wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
-                )
-            )
-            list_of_messages = self.browser.find_elements_by_xpath(
-                '//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div'
-            )
-
+            list_of_messages = self.get_list_of_messages()
             for chat in list_of_messages:
-                name = chat.text.split("\n")[0]
-                if query.upper() in name.upper():
-                    maybe_new_msg = chat.text.split("\n")[-1]
-                    if maybe_new_msg and maybe_new_msg.isdigit():
+                if query.upper() == chat["sender"].upper():
+                    if chat["unread"]:
                         LOGGER.info(
-                            f'Yup, {maybe_new_msg} new message(s) on chat "{name}".'
+                            f'Yup, {chat["no_of_unread"]} new message(s) on chat <{chat["sender"]}>.'
                         )
                         return True
                     LOGGER.info(f'There are no new messages on chat "{query}".')
                     return False
+            LOGGER.info(f'Could not locate chat "{query}"')
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
@@ -685,61 +756,75 @@ class WhatsApp(object):
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
-            
+
     def fetch_all_unread_chats(self, limit=True, top=50):
         """fetch_all_unread_chats()  [nCKbr]
 
         retrieve all unread chats.
-        
+
         Args:
             limit (boolean): should we limit the counting to a certain number of chats (True) or let it count it all (False)? [default = True]
             top (int): once limiting, what is the *approximate* number of chats that should be considered? [generally, there are natural chunks of 10-22]
-        
-        DISCLAIMER: Apparently, fetch_all_unread_chats functionallity works on most updated browser versions 
-        (for example, Chrome Version 102.0.5005.115 (Official Build) (x86_64)). If it fails with you, please 
+
+        DISCLAIMER: Apparently, fetch_all_unread_chats functionallity works on most updated browser versions
+        (for example, Chrome Version 102.0.5005.115 (Official Build) (x86_64)). If it fails with you, please
         consider updating your browser while we work on an alternative for non-updated broswers.
-        
+
         """
         try:
-            self.wait.until(
+            counter = 0
+            pane = self.wait.until(
                 EC.presence_of_element_located(
-                    (By.XPATH, '//div[@id="side"]/div[1]/div/div/div/div')
+                    (By.XPATH, '//div[@id="pane-side"]/div[2]')
                 )
             )
-            counter = 0
-            
-            pane = self.browser.find_element_by_xpath('//div[@id="pane-side"]/div[1]')
-            time.sleep(5) # needed, fgs.
-            list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+            list_of_messages = self.get_list_of_messages()
             read_names = []
             names = []
+            names_data = []
 
             while True:
                 last_counter = counter
                 for item in list_of_messages:
-                    name = item.text.split('\n')[0]
+                    name = item["sender"]
                     if name not in read_names:
                         read_names.append(name)
                         counter += 1
-                    if self.check_if_given_chat_has_unread_messages(name):
-                        if name not in names: names.append(name)
-                
-                pane.send_keys(Keys.PAGE_DOWN)
-                pane.send_keys(Keys.PAGE_DOWN)
-               
-                time.sleep(5) # needed, fgs.
-                self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div[last()]')[0].text
-                list_of_messages = self.browser.find_elements_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]/child::div')
+                    if item["unread"]:
+                        if name not in names:
+                            names.append(name)
+                            names_data.append(item)
 
-                if last_counter == counter and int(counter) >= int(self.browser.find_element_by_xpath('//div[@id="pane-side"]/div[1]/div[1]/div[1]').get_attribute("aria-rowcount"))*0.9: break
-                if limit and counter >= top: break
-                
+                pane.send_keys(Keys.PAGE_DOWN)
+                pane.send_keys(Keys.PAGE_DOWN)
+
+                list_of_messages = self.get_list_of_messages()
+                if (
+                    last_counter == counter
+                    and counter
+                    >= int(
+                        self.wait.until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, '//div[@id="pane-side"]/div[2]')
+                            )
+                        ).get_attribute("aria-rowcount")
+                    )
+                    * 0.9
+                ):
+                    break
+                if limit and counter >= top:
+                    break
+
                 LOGGER.info(f"The counter value at this chunk is: {counter}.")
-                
+
             if limit:
-                LOGGER.info(f"The list of unread chats, considering the first {counter} messages, is: {names}.")
+                LOGGER.info(
+                    f"The list of unread chats, considering the first {counter} messages, is: {names}."
+                )
             else:
                 LOGGER.info(f"The list of all unread chats is: {names}.")
+            return names_data
 
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
+            return []
