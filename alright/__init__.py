@@ -62,10 +62,6 @@ class WhatsApp(object):
         else:
             chrome_options.add_argument("start-maximized")
             chrome_options.add_argument("--user-data-dir=./User_Data")
-        # Please, only uncomment the following line if you are ACTUALLY running headless.
-        # chrome_options.add_argument("--headless")
-        # Please, only uncomment the following line if you are ACTUALLY running headless AND on Windows.
-        # chrome_options.add_argument("--disable-gpu") # only if you are ACTUALLY running headless
         return chrome_options
 
     def cli(self):
