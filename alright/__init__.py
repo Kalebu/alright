@@ -828,3 +828,59 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
             return []
+
+    def send_vid_pic(self, vid_pic, message=" "):
+        """send_vid_pic ()
+        Sends a video to a target user
+        CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
+
+        Args:
+            vid_pic ([type]): the video file to be sent.
+            message ([string]): Message to be sent
+        """
+        try:
+            filename = os.path.realpath(vid_pic)
+            f_size = os.path.getsize(filename)
+            x = self.convert_bytes_to(f_size, 'MB')
+            if x < 14:
+                # File is less than 14MB
+                self.find_attachment()
+                # To send a Video
+                video_button = self.wait.until(
+                    EC.presence_of_element_located(
+                        (
+                            By.XPATH,
+                            '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                        )
+                    )
+                )
+
+                video_button.send_keys(filename)
+
+                inp_xpath_pic = '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div/div[2]'
+                inp_xpath_vid = '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div[2]/div[1]/div[2]'
+
+                # The Textbox is different XPath dependent on Vid Add or Pic Add - Test for both
+                ctrl_element = self.wait.until(
+                    lambda ctrl_self: ctrl_self.find_elements(By.XPATH, inp_xpath_pic)
+                                      or ctrl_self.find_elements(By.XPATH, inp_xpath_vid)
+                )
+
+                for i in ctrl_element:
+                    if i.aria_role == "textbox":
+                        for line in message.split("\n"):
+                            i.send_keys(line)
+                            ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(
+                                Keys.ENTER).key_up(Keys.SHIFT).perform()
+
+                        # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
+                        self.catch_alert()
+
+                self.send_attachment()
+                LOGGER.info(f"Picture or Video has been successfully sent to {self.mobile}")
+            else:
+                LOGGER.info(f"File larger than 14MB")
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
+        finally:
+            LOGGER.info("send_video() finished running!")
