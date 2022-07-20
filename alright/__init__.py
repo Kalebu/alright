@@ -175,8 +175,9 @@ class WhatsApp(object):
         search_box.send_keys(username)
         search_box.send_keys(Keys.ENTER)
         try:
-            opened_chat = self.browser.find_elements_by_xpath(
-                '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
+            opened_chat = self.browser.find_elements(
+                by=By.XPATH,
+                value='//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
             )
             if len(opened_chat):
                 title = opened_chat[0].get_attribute("title")
@@ -828,3 +829,22 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
             return []
+    
+    def just_type_and_send_message(self, message):
+        """fetch_all_unread_chats()  [nCKbr]
+
+        quick fix to send a simple text message. Recommended usage: with find_by_username, as follows:
+        
+            messenger = WhatsApp()
+            messenger.find_by_username("John")
+            messenger.just_type_and_send_message("Bla\nBla\nBla")
+            messenger.browser.quit()
+            
+        """
+        box = self.browser.switch_to.active_element
+        for line in message.split("\n"):
+            box.send_keys(line)
+            ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
+                Keys.ENTER
+            ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+        box.send_keys(Keys.ENTER)
