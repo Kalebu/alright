@@ -121,6 +121,35 @@ To send a message with alright, you first need to target a specific user by usin
         messenger.send_message(message)    
 ```
 
+### Send Direct Message [NEW]
+
+> Recommended
+
+This is newly added method that makes a bit simpler to send a direct method without having to do **find_user** or **find_by_username**, It works well even if you have or not have WhatsApp App installed on your machine, It does assume the number is a saved contact by default.
+
+```python
+>>> messenger.send_direct_message(mobile, message, saved=True)
+```
+
+It does receive the following parameters;
+
+1. **mobile[str]** - The mobile number of the user you want to send the message to
+2. **message[str]** - The message you want to send
+3. **saved[bool]** - If you want to send to a saved contact or not, default is False
+
+Here is an example on how to use it;
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> >>> messenger.send_direct_message('25573652xxx', 'Hello')
+2022-08-14 17:27:57,264 - root -- [INFO] >> Message sent successfuly to 
+2022-08-14 17:27:57,264 - root -- [INFO] >> send_message() finished running!
+>>> messenger.send_direct_message('25573652xxx', 'Who is This ?', False)
+2022-08-14 17:28:30,953 - root -- [INFO] >> Message sent successfuly to 255736524388
+2022-08-14 17:28:30,953 - root -- [INFO] >> send_message() finished running!
+```
+
 >IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1
 
 ### Sending Messages1

@@ -31,7 +31,7 @@ class WhatsApp(object):
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
-        self.suffix_link = "https://api.whatsapp.com/send/?phone={mobile}&text&type=phone_number&app_absent=0"
+        self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
 
         if not browser:
             browser = webdriver.Chrome(
@@ -137,18 +137,7 @@ class WhatsApp(object):
             self.mobile = mobile
             link = self.get_phone_link(mobile)
             self.browser.get(link)
-            action_button = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="action-button"]'))
-            )
-            action_button.click()
-            time.sleep(2)
-            go_to_web = self.wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="fallback_block"]/div/div/h4[2]/a')
-                )
-            )
-            go_to_web.click()
-            time.sleep(1)
+            time.sleep(3)
         except UnexpectedAlertPresentException as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
             time.sleep(1)
@@ -487,6 +476,13 @@ class WhatsApp(object):
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
             LOGGER.info("send_message() finished running!")
+
+    def send_direct_message(self, mobile: str, message: str, saved: bool = True):
+        if saved:
+            self.find_by_username(mobile)
+        else:
+            self.find_user(mobile)
+        self.send_message(message)
 
     def find_attachment(self):
         clipButton = self.wait.until(
