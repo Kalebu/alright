@@ -4,7 +4,6 @@ allowing you to send messages, images, video and documents programmatically usin
 """
 
 
-from email import message
 import os
 import sys
 import time
