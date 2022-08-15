@@ -150,8 +150,6 @@ Here is an example on how to use it;
 2022-08-14 17:28:30,953 - root -- [INFO] >> send_message() finished running!
 ```
 
->IF you have the desktop WhatsApp app installed, then this call will cause problems, Use SendMessage 1
-
 ### Sending Messages1
 
 This Send Message does NOT find the user first like in the above Send Message, AND it does work even if you have the Desktop WhatsApp app installed
