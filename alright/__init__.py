@@ -15,6 +15,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     UnexpectedAlertPresentException,
     NoSuchElementException,
@@ -56,8 +57,8 @@ class WhatsApp(object):
     def chrome_options(self):
         chrome_options = Options()
         if sys.platform == "win32":
-            chrome_options.add_argument("--profile-directory=Default")
-            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
+            chrome_options.add_argument("--profile-directory=alright")
+            chrome_options.add_argument("--user-data-dir=" + os.getcwd())
         else:
             chrome_options.add_argument("start-maximized")
             chrome_options.add_argument("--user-data-dir=./User_Data")
@@ -163,9 +164,9 @@ class WhatsApp(object):
         search_box.send_keys(username)
         search_box.send_keys(Keys.ENTER)
         try:
-            opened_chat = self.browser.find_element("xpath", 
+            opened_chat = self.browser.find_elements(By.XPATH, 
                 '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
-            )
+            )   
             if len(opened_chat):
                 title = opened_chat[0].get_attribute("title")
                 if title.upper() == username.upper():
@@ -195,7 +196,7 @@ class WhatsApp(object):
             search_box.clear()
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
-            opened_chat = self.browser.find_element("xpath",
+            opened_chat = self.browser.find_element(By.XPATH,
                 "/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span"
             )
             title = opened_chat.get_attribute("title")
@@ -474,7 +475,6 @@ class WhatsApp(object):
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
-        finally:
             LOGGER.info("send_message() finished running!")
 
     def send_direct_message(self, mobile: str, message: str, saved: bool = True):
