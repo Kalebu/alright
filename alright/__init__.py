@@ -163,7 +163,7 @@ class WhatsApp(object):
         search_box.send_keys(username)
         search_box.send_keys(Keys.ENTER)
         try:
-            opened_chat = self.browser.find_elements_by_xpath(
+            opened_chat = self.browser.find_element("xpath", 
                 '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
             )
             if len(opened_chat):
@@ -195,7 +195,7 @@ class WhatsApp(object):
             search_box.clear()
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
-            opened_chat = self.browser.find_element_by_xpath(
+            opened_chat = self.browser.find_element("xpath",
                 "/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span"
             )
             title = opened_chat.get_attribute("title")
