@@ -12,7 +12,7 @@ Python wrapper for WhatsApp web made with selenium inspired by [PyWhatsApp](http
 
 ## Why alright ?
 
-I was looking for a way to control and automate WhatsApp web with Python, I came across some very nice libaries and wrappers implementations including;
+I was looking for a way to control and automate WhatsApp web with Python, I came across some very nice libaries and wrapper implementations including;
 
 - [pywhatkit](https://pypi.org/project/pywhatkit/)
 - [pywhatsapp](https://github.com/tax/pywhatsapp)
@@ -20,27 +20,27 @@ I was looking for a way to control and automate WhatsApp web with Python, I came
 - [WebWhatsapp-Wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper)
 - and many others
 
-So I tried [**pywhatkit**](https://pypi.org/project/pywhatkit/), really cool one well crafted to be used by others but its implementations require you to open a new browser tap and scan QR code everytime you send a message no matter if its the same person, which was deal breaker for using it.
+So I tried [**pywhatkit**](https://pypi.org/project/pywhatkit/), a really cool one well crafted to be used by others but its implementations require you to open a new browser tab and scan QR code everytime you send a message no matter if its to the same person, which was deal breaker for using it.
 
-I then tried [**pywhatsapp**](https://github.com/tax/pywhatsapp) which is based on [yowsup](https://github.com/tgalal/yowsup) and thus requiring you to do some registration with yowsup before using it of which after bit of googling I got scared of having my number blocked when I do that so I went for the next option
+Then I tried [**pywhatsapp**](https://github.com/tax/pywhatsapp) which is based on [yowsup](https://github.com/tgalal/yowsup) and thus requiring you to do some registration with yowsup before using it of which after bit of googling I got scared of having my number blocked, so I went for the next option
 
-I then went for [**WebWhatsapp-Wrapper**](https://github.com/mukulhase/WebWhatsapp-Wrapper), it has some good documentation and recent commits so I had hopes it gonna work but It didn't for me, and after having couples of errors I abandoned it to look for the next alternative.
+I then went for [**WebWhatsapp-Wrapper**](https://github.com/mukulhase/WebWhatsapp-Wrapper), it has some good documentation and recent commits so I had hopes that it would work. But unfortunately it didn't for me, and after having a couple of errors I abandoned it to look for the next alternative.
 
-Which is [**PyWhatsapp**](https://github.com/shauryauppal/PyWhatsapp) by [shauryauppal](https://github.com/shauryauppal/), which was more of cli tool than a wrapper which suprisingly worked and it's approach allows you to dynamically send whatsapp message to unsaved contacts without rescanning QR-code everytime.
+Which is [**PyWhatsapp**](https://github.com/shauryauppal/PyWhatsapp) by [shauryauppal](https://github.com/shauryauppal/). This was more of CLI tool than a wrapper which suprisingly worked well and it's approach allows you to dynamically send whatsapp message to unsaved contacts without rescanning QR-code everytime.
 
-So what I did is more of a refactoring of the implementation of that tool to be more of wrapper to easily allow people to run different scripts on top of it instead of just using as a tool I then thought of sharing the codebase to people who might struggled to do this as I did.
+So what I did is more of a refactoring of the implementation of that tool to be more of wrapper to easily allow people to run different scripts on top of it instead of just using it as a tool. I then thought of sharing the codebase to people who might have struggled to do this as I did.
 
 ## Getting started
 
-You need to do a little bit of work to get [**alright**](https://github.com/Kalebu/alright) to running, but don't worry I gotcha you, everything will work well if you just carefully follow through the documentation.
+You need to do a little bit of work to get [**alright**](https://github.com/Kalebu/alright) running, but don't worry I got you, everything will work well if you just carefully follow through the documentation.
 
 ### Installation
 
-We need to have alright installed on our machine to start using which can either be done directly from **GitHub** or using **pip**.
+We need to have alright installed on our machine to start using it which can either be done directly from **GitHub** or using **pip**.
 
-#### installing directly
+#### Installing directly
 
-You first need to clone or download the repo to your local directory and then move into the project directory as shown in the example and then run the below command;
+You first need to clone or download the repo to your local directory and then move into the project directory as shown in the example and then run the command below;
 
 ```bash
 git clone https://github.com/Kalebu/alright
@@ -49,7 +49,7 @@ alright > python setup.py install
 ....
 ```
 
-#### installing from pip
+#### Installing from pip
 
 ```bash
 pip install alright --upgrade
@@ -57,7 +57,7 @@ pip install alright --upgrade
 
 ### Setting up Selenium
 
-Underneath alright is **Selenium** which is one does all the automation work by directly controlling the browser, so you need to have a selenium driver on your machine for **alright** to work. But luckily alright uses [webdrive-manager](https://pypi.org/project/webdriver-manager/), which does this automatically. You just need to install a browser. By default alright uses [Google Chrome](https://www.google.com/chrome/).
+Underneath alright is **Selenium** which is what does all the automation work by directly controlling the browser, so you need to have a selenium driver on your machine for **alright** to work. But luckily alright uses [webdrive-manager](https://pypi.org/project/webdriver-manager/), which does this automatically. You just need to install a browser. By default alright uses [Google Chrome](https://www.google.com/chrome/).
 
 ## What you can do with alright?
 
@@ -70,17 +70,17 @@ Underneath alright is **Selenium** which is one does all the automation work by 
 - [Search chat by name](#search-chat-by-name)
 - [logout](#logout)
 
-*When you're running your program made with **alright**, you can only have one controlled browser window at a time, If you run while another window is live it raise an error so make sure to close the controlled window before running another one*
+*When you're running your program made with **alright**, you can only have one controlled browser window at a time. Running a new window while another window is live will raise an error. So make sure to close the controlled window before running another one*
 
 ### Unsaved contact vs saved contacts
 
-Alright allows you to send the messages and media to both unsaved contacts as explained earlier but there is a tiny distinction on how you do that, you will observe this clearly as use the package.
+Alright allows you to send the messages and media to both saved and unsaved contacts as explained earlier. But there is a tiny distinction on how you do that, you will observe this clearly as you use the package.
 
-The first step before sending anything to the user is first to locate the user and then you can start sending the informations thats where the main difference lies btn saved and unsaved contacts.
+The first step before sending anything to the user is first to locate the user and then you can start sending the information, thats where the main difference lies between saved and unsaved contacts.
 
 #### Saved contacts
 
-To saved contact use method *find_by_username()* to locate saved user,you can also use the same method to locate WhatsApp groups, The parameter can be either be;
+To saved contact use method *find_by_username()* to locate a saved user. You can also use the same method to locate WhatsApp groups. The parameter can either be;
 
 - saved username
 - mobile number
@@ -96,7 +96,7 @@ Here an Example on how to do that
 
 #### Unsaved contacts
 
-In sending message to unsaved whatsapp contacts use *find_user()* method to locate the user and The parameter can only be users number with country code with (+) omitted as shown below;
+In sending message to unsaved whatsapp contacts use *find_user()* method to locate the user and the parameter can only be users number with country code with (+) omitted as shown below;
 
 ```python
 >>> from alright import WhatsApp
@@ -110,7 +110,7 @@ Now Let's dive in on how we can get started on sending messages and medias
 
 >Use this if you don't have WhatsApp desktop installed
 
-To send a message with alright, you first need to target a specific user by using *find_user()* method (include the **country code** in your number withour '+' symbol) and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
+To send a message with alright, you first need to target a specific user by using *find_user()* method (include the **country code** in your number without the '+' symbol) and then after that you can start sending messages to the target user using *send_message()* method as shown in the example below;
 
 ```python
 >>> from alright import WhatsApp
@@ -125,7 +125,7 @@ To send a message with alright, you first need to target a specific user by usin
 
 > Recommended
 
-This is newly added method that makes a bit simpler to send a direct method without having to do **find_user** or **find_by_username**, It works well even if you have or not have WhatsApp App installed on your machine, It does assume the number is a saved contact by default.
+This is newly added method that makes it a bit simpler to send a direct message without having to do the **find_user** or **find_by_username**, It works well even if you have or not have WhatsApp installed on your machine. It assumes the number is a saved contact by default.
 
 ```python
 >>> messenger.send_direct_message(mobile, message, saved=True)
@@ -135,7 +135,7 @@ It does receive the following parameters;
 
 1. **mobile[str]** - The mobile number of the user you want to send the message to
 2. **message[str]** - The message you want to send
-3. **saved[bool]** - If you want to send to a saved contact or not, default is False
+3. **saved[bool]** - If you want to send to a saved contact or not, default is True
 
 Here is an example on how to use it;
 
@@ -152,8 +152,8 @@ Here is an example on how to use it;
 
 ### Sending Messages1
 
-This Send Message does NOT find the user first like in the above Send Message, AND it does work even if you have the Desktop WhatsApp app installed
-include the **country code** in your number withour '+' symbol as shown in the example below;
+This Send Message does NOT find the user first like in the above Send Message, AND it does work even if you have the Desktop WhatsApp app installed.
+Include the **country code** in your number withour '+' symbol as shown in the example below;
 
 ```python
 >>> from alright import WhatsApp
@@ -181,7 +181,7 @@ Here how to send a message to multiple users, Let's say we want to wish merry-x 
 
 ### Sending Images
 
-Sending Images is nothing new, its just the fact you have to include a path to your image and the message to accompany the image instead of just the raw string characters and also you have use *send_image()*, Here an example;
+Sending Images is nothing new, its just the fact you have to include a path to your image and the message to accompany the image instead of just the raw string characters and also you have use *send_picture()*, Here an example;
 
 ```python
 >>> from alright import WhatsApp
@@ -192,7 +192,7 @@ Sending Images is nothing new, its just the fact you have to include a path to y
 
 ### Sending Videos
 
-Samewise to videos just *send_videos()*  method;
+Similarly, to send videos just use the *send_video()*  method;
 
 ```python
 >>> from alright import WhatsApp
@@ -204,7 +204,7 @@ Samewise to videos just *send_videos()*  method;
 
 ### Sending Documents
 
-The rest of the documents such as docx, pdf, audio etc. falls into documents category. You can use *send_files()* to do that.
+To send documents such as docx, pdf, audio etc, you can use the *send_file()* method to do that;
 
 ```python
 >>> from alright import WhatsApp
@@ -225,7 +225,7 @@ This method checks if a chat, which name is passed as a *query* parameter, has g
         
 ### Get first chat
 
-This method fetches the first chat in the list on the left of the web app - since they are not ordered in an expected way, a fair workaround is applied. One can also ignore or not pinned chats (placed at the top of the list) by passing the parameter *ignore_pinned* to do that - default value is `ignore_pinned=True`.
+This method fetches the first chat in the list on the left of the web app - since they are not ordered in an expected way, a fair workaround is applied. One can also ignore (or not ignore) pinned chats (placed at the top of the list) by passing the parameter *ignore_pinned* to do that - default value is `ignore_pinned=True`.
 
 ```python
 >>> from alright import WhatsApp
@@ -263,7 +263,7 @@ This method searches for all chats with unread messages, possibly receiving para
 >>> messenger.fetch_all_unread_chats(limit=True, top=30)
 ```
 
-#### DISCLAIMER: Apparently, `fetch_all_unread_chats` functionallity works on most updated browser versions (for example, `Chrome Version 102.0.5005.115 (Official Build) (x86_64)`). If it fails with you, please consider updating your browser while we work on an alternative for non-updated broswers.
+#### DISCLAIMER: Apparently, `fetch_all_unread_chats` functionallity works on most updated browser versions (for example, `Chrome Version 102.0.5005.115 (Official Build) (x86_64)`). If it fails with you, please consider updating your browser while we work on an alternatives for non-updated broswers.
         
 ### logout from whatsapp
 
@@ -281,7 +281,7 @@ Well! thats all for now from the package, to request new feature make an issue.
 
 **alright** is an open-source package under **MIT** license, so contributions are warmly welcome whether that be a code , docs or typo just fork it.
 
-when contributing to code please make an issue for that before making your changes so that we can have a discussion before implementation.
+When contributing to code please make an issue for that before making your changes so that we can have a discussion before implementation.
 
 ## Issues
 
