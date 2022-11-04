@@ -540,7 +540,7 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div/div[2]'
+            inp_xpath = '/html/body/div[1]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]'
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
@@ -549,7 +549,6 @@ class WhatsApp(object):
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
-            input_box.send_keys(Keys.ENTER)
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
