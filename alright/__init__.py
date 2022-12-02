@@ -41,9 +41,9 @@ class WhatsApp(object):
             )
 
             handles = browser.window_handles
-            for x in range(len(handles)):
-                if handles[x] != browser.current_window_handle:
-                    browser.switch_to.window(handles[x])
+            for _, handle in enumerate(handles):
+                if handle != browser.current_window_handle:
+                    browser.switch_to.window(handle)
                     browser.close()
 
         self.browser = browser
@@ -164,9 +164,9 @@ class WhatsApp(object):
         search_box.send_keys(username)
         search_box.send_keys(Keys.ENTER)
         try:
-            opened_chat = self.browser.find_elements(By.XPATH, 
-                '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
-            )   
+            opened_chat = self.browser.find_elements(
+                By.XPATH, '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
+            )
             if len(opened_chat):
                 title = opened_chat[0].get_attribute("title")
                 if title.upper() == username.upper():
@@ -196,8 +196,9 @@ class WhatsApp(object):
             search_box.clear()
             search_box.send_keys(username)
             search_box.send_keys(Keys.ENTER)
-            opened_chat = self.browser.find_element(By.XPATH,
-                "/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span"
+            opened_chat = self.browser.find_element(
+                By.XPATH,
+                "/html/body/div/div[1]/div[1]/div[4]/div[1]/header/div[2]/div[1]/div/span",
             )
             title = opened_chat.get_attribute("title")
             if title.upper() == username.upper():
@@ -540,7 +541,7 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = '/html/body/div[1]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]'
+            inp_xpath = "/html/body/div[1]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]"
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
