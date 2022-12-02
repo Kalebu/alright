@@ -690,8 +690,12 @@ class WhatsApp(object):
                 time.sleep(
                     3
                 )  # clueless on why the previous wait is not respected - we need this sleep to load tha list.
-                list_of_messages = self.browser.find_elements_by_xpath(
-                    '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]'
+
+                list_of_messages = self.wait.until(
+                    EC.presence_of_all_elements_located(
+                        By.XPATH,
+                        '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]',
+                    )
                 )
 
                 if len(list_of_messages) == 0:
@@ -701,12 +705,15 @@ class WhatsApp(object):
                 else:
                     msg = list_of_messages[-1]
 
-                    if (
-                        self.browser.find_element_by_xpath(
-                            '//div[@id="main"]/header/div[1]/div[1]/div[1]/span'
-                        ).get_attribute("data-testid")
-                        == "default-user"
-                    ):
+                    is_default_user = self.wait.until(
+                        EC.presence_of_element_located(
+                            (
+                                By.XPATH,
+                                '//div[@id="main"]/header/div[1]/div[1]/div[1]/span',
+                            )
+                        )
+                    ).get_attribute("data-testid")
+                    if is_default_user == "default-user":
                         msg_sender = query
                     else:
                         msg_sender = msg.text.split("\n")[0]
@@ -722,16 +729,25 @@ class WhatsApp(object):
                         when = msg.text.split("\n")[0]
                         msg = "Non-text message (maybe emoji?)"
 
+                    header_group = self.wait.until(
+                        EC.presence_of_element_located(
+                            (
+                                By.XPATH,
+                                '//div[@id="main"]/header/div[1]/div[1]/div[1]/span',
+                            )
+                        )
+                    )
+                    header_text = self.wait.until(
+                        EC.presence_of_element_located(
+                            (By.XPATH, '//div[@id="main"]/header/div[2]/div[2]/span')
+                        )
+                    )
+
                     if (
-                        self.browser.find_element_by_xpath(
-                            '//div[@id="main"]/header/div[1]/div[1]/div[1]/span'
-                        ).get_attribute("data-testid")
-                        == "default-group"
-                        and msg_sender.strip()
-                        in self.browser.find_element_by_xpath(
-                            '//div[@id="main"]/header/div[2]/div[2]/span'
-                        ).text
-                    ):  # it is a group
+                        header_group.get_attribute("data-testid") == "default-group"
+                        and msg_sender.strip() in header_text.text
+                    ):
+
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     elif (
                         msg_sender.strip() != msg[0].strip()
