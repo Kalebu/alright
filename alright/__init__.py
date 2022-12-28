@@ -20,7 +20,6 @@ from selenium.common.exceptions import (
     UnexpectedAlertPresentException,
     NoSuchElementException,
 )
-from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import quote
 
 LOGGER = logging.getLogger()
@@ -35,6 +34,8 @@ class WhatsApp(object):
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
 
         if not browser:
+            from webdriver_manager.chrome import ChromeDriverManager
+
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
                 options=self.chrome_options,
