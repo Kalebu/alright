@@ -469,10 +469,11 @@ class WhatsApp(object):
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
             for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                ActionChains(self.browser).send_keys_to_element(
+                    input_box, line
+                ).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(
+                    Keys.SHIFT
+                ).perform()
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
