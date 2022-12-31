@@ -3,4 +3,7 @@ from alright import WhatsApp
 
 msg = "hey I'm done its tuesday"
 messenger = WhatsApp()
-messenger.send_message1("255xxxxxxxxx", msg)
+numbers = ['00000000000', '00000000000', '00000000000']
+for number in numbers:
+    messenger.find_user(number)
+    messenger.send_picture('/Users/arsalankhan/Downloads/tiger.jpeg', "Text to accompany image")
