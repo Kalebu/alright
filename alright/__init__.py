@@ -20,7 +20,6 @@ from selenium.common.exceptions import (
     UnexpectedAlertPresentException,
     NoSuchElementException,
 )
-from webdriver_manager.chrome import ChromeDriverManager
 
 LOGGER = logging.getLogger()
 
@@ -34,6 +33,8 @@ class WhatsApp(object):
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
 
         if not browser:
+            from webdriver_manager.chrome import ChromeDriverManager
+
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
                 options=self.chrome_options,
@@ -467,10 +468,11 @@ class WhatsApp(object):
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
             for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+                ActionChains(self.browser).send_keys_to_element(
+                    input_box, line
+                ).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.ENTER).key_up(
+                    Keys.SHIFT
+                ).perform()
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
