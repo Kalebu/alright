@@ -287,6 +287,8 @@ When contributing to code please make an issue for that before making your chang
 
 If you're facing any issue or difficulty with the usage of the package just raise one so that we can fix it as soon as possible.
 
+**Please, be as much comprehensive as possible!** Use as many screenshots and detailed description sets as possible; this will save us some time that we'd dedicate on asking you for "a more detailed descriptiton", and it'll make your request be solved faster.
+
 ## Give it a star
 
 Was this useful to you ? Then give it a star so that more people can manke use of this.
