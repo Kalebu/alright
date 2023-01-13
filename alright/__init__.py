@@ -21,7 +21,6 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 from webdriver_manager.chrome import ChromeDriverManager
-from urllib.parse import quote
 
 LOGGER = logging.getLogger()
 
