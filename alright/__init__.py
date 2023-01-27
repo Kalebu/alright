@@ -262,7 +262,7 @@ class WhatsApp(object):
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
 
-            # excepcitonally acceptable here!
+            # acceptable here as an exception!
             time.sleep(1)
             flag = False
             prev_name = ""
