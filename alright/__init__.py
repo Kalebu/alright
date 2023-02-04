@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import logging
+import platformdirs
 from typing import Optional
 from pathlib import Path
 from selenium import webdriver
@@ -57,12 +58,11 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
+        chrome_options.add_argument("--user-data-dir=" + platformdirs.user_data_dir("alright"))
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
-            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
-            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def cli(self):
