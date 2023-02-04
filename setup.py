@@ -27,6 +27,7 @@ setup(
         "python-whatsapp-wrapper",
     ],
     install_requires=[
+        "platformdirs",
         "selenium",
         "webdriver-manager",
     ],
