@@ -56,7 +56,9 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
-        chrome_options.add_argument("--user-data-dir=" + platformdirs.user_data_dir("alright"))
+        chrome_options.add_argument(
+            "--user-data-dir=" + platformdirs.user_data_dir("alright")
+        )
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
         else:
@@ -422,7 +424,7 @@ class WhatsApp(object):
             )
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
-                if i.aria_role == "textbox":
+                if i.get_attribute("role") == "textbox":
                     # This is a WhatsApp Number -> Send Message
 
                     for line in message.split("\n"):
@@ -436,7 +438,7 @@ class WhatsApp(object):
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
-                elif i.aria_role == "button":
+                elif i.get_attribute("role") == "button":
                     # Did not find the Message Text box
                     # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
                     if i.text == "OK":
