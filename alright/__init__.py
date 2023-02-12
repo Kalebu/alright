@@ -455,12 +455,13 @@ class WhatsApp(object):
             LOGGER.info(f"{msg}")
             return msg
 
-    def send_message(self, message):
+    def send_message(self, message, wait_for_link_preview=False):
         """send_message ()
         Sends a message to a target user
 
         Args:
             message ([type]): [description]
+            wait_for_link_preview (bool): Wait until the link preview is shown. Defaults to False.
         """
         try:
             inp_xpath = (
@@ -474,18 +475,20 @@ class WhatsApp(object):
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if wait_for_link_preview:
+                self.wait_for_link_preview()
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
             LOGGER.info("send_message() finished running!")
 
-    def send_direct_message(self, mobile: str, message: str, saved: bool = True):
+    def send_direct_message(self, mobile: str, message: str, saved: bool = True, wait_for_link_preview: bool = False):
         if saved:
             self.find_by_username(mobile)
         else:
             self.find_user(mobile)
-        self.send_message(message)
+        self.send_message(message, wait_for_link_preview)
 
     def wait_for_link_preview(self, timeout = 30):
         """Wait until the link preview is created.
