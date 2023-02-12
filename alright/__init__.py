@@ -422,6 +422,7 @@ class WhatsApp(object):
                 lambda ctrl_self: ctrl_self.find_elements(By.XPATH, nr_not_found_xpath)
                 or ctrl_self.find_elements(By.XPATH, inp_xpath)
             )
+            msg = "0"  # Not yet sent
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
                 if i.get_attribute("role") == "textbox":
