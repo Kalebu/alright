@@ -487,6 +487,27 @@ class WhatsApp(object):
             self.find_user(mobile)
         self.send_message(message)
 
+    def wait_for_link_preview(self, timeout = 30):
+        """Wait until the link preview is created.
+
+        Args:
+            timeout (int, optional): Max time to wait in seconds. Defaults to 30.
+        """
+        link_preview_xpath = (
+                '//*[@id="main"]/div[3]'
+            )
+        link_preview_element = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, link_preview_xpath))
+            )
+        def extract_height(element):
+            return int(element.get_attribute("style").split("height:")[1].split("px")[0])
+        time_counter_s = 0
+        thumbnail_height = extract_height(link_preview_element)
+        while ( thumbnail_height == 0 and time_counter_s < timeout):
+            time.sleep(1)
+            thumbnail_height = extract_height(link_preview_element)
+            time_counter_s +=1
+
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
