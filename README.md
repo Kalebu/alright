@@ -181,12 +181,12 @@ Here how to send a message to multiple users, Let's say we want to wish merry-x 
 
 ### Sending Links (Link Preview)
 
-Sending messages with a link and link preview can be accomplished by setting the `wait_for_link_preview` flag in the **send_message** or **send_direct_message** function to `True` 
+Sending messages with a link and link preview can be accomplished by setting the `link_preview_timeout` to a value above zero in the **send_message** or **send_direct_message** function. The `link_preview_timeout` is the maximum time in seconds to wait until a link preview is generated. The time needed to create the preview depends on the specific link and the used system.  
 
 ```python
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
->>> messenger.send_direct_message('25573652xxx', 'https://github.com/Kalebu/alright', True, True)
+>>> messenger.send_direct_message('25573652xxx', 'https://github.com/Kalebu/alright', True, 20)
 ```
 
 ### Sending Images
