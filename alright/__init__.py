@@ -496,7 +496,6 @@ class WhatsApp(object):
         clipButton.click()
 
     def send_attachment(self):
-
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
             EC.presence_of_element_located(
@@ -508,7 +507,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="app"]/div[1]/div[1]/div[2]/div[2]/span/div[1]/span/div[1]/div/div[2]/div/div[2]/div[2]/div/div/span',
+                    "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span",
                 )
             )
         )
@@ -543,7 +542,7 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = "/html/body/div[1]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]"
+            inp_xpath = "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div"
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
@@ -677,9 +676,7 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
-
             if self.find_by_username(query):
-
                 self.wait.until(
                     EC.presence_of_element_located(
                         (
@@ -749,7 +746,6 @@ class WhatsApp(object):
                         header_group.get_attribute("data-testid") == "default-group"
                         and msg_sender.strip() in header_text.text
                     ):
-
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     elif (
                         msg_sender.strip() != msg[0].strip()
