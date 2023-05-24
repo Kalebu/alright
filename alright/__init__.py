@@ -27,13 +27,13 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, browser=None, time_out=600):
+    def __init__(self, headless=False, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-
+        self.headless= headless
         if not browser:
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
@@ -56,6 +56,7 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
+        chrome_options.headless = self.headless
         chrome_options.add_argument(
             "--user-data-dir=" + platformdirs.user_data_dir("alright")
         )
