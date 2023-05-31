@@ -179,6 +179,16 @@ Here how to send a message to multiple users, Let's say we want to wish merry-x 
 
 *You have to include the **country code** in your number for this library to work but don't include the (+) symbol*
 
+### Sending Links (Link Preview)
+
+Sending messages with a link and link preview can be accomplished by setting the `link_preview_timeout` to a value above zero in the **send_message** or **send_direct_message** function. The `link_preview_timeout` is the maximum time in seconds to wait until a link preview is generated. The time needed to create the preview depends on the specific link and the used system.  
+
+```python
+>>> from alright import WhatsApp
+>>> messenger = WhatsApp()
+>>> messenger.send_direct_message('25573652xxx', 'https://github.com/Kalebu/alright', True, 20)
+```
+
 ### Sending Images
 
 Sending Images is nothing new, its just the fact you have to include a path to your image and the message to accompany the image instead of just the raw string characters and also you have use *send_picture()*, Here an example;

@@ -456,12 +456,13 @@ class WhatsApp(object):
             LOGGER.info(f"{msg}")
             return msg
 
-    def send_message(self, message):
+    def send_message(self, message, link_preview_timeout:int=0):
         """send_message ()
         Sends a message to a target user
 
         Args:
             message ([type]): [description]
+            link_preview_timeout (int, optional): Wait until the link preview is shown. Defaults to 0.
         """
         try:
             inp_xpath = (
@@ -475,18 +476,41 @@ class WhatsApp(object):
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if link_preview_timeout > 0:
+                self.wait_for_link_preview(link_preview_timeout)
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
             LOGGER.info("send_message() finished running!")
 
-    def send_direct_message(self, mobile: str, message: str, saved: bool = True):
+    def send_direct_message(self, mobile: str, message: str, saved: bool = True, link_preview_timeout: int = 0):
         if saved:
             self.find_by_username(mobile)
         else:
             self.find_user(mobile)
-        self.send_message(message)
+        self.send_message(message, link_preview_timeout)
+
+    def wait_for_link_preview(self, timeout):
+        """Wait until the link preview is created.
+
+        Args:
+            timeout (int): Max time to wait in seconds.
+        """
+        link_preview_xpath = (
+                '//*[@id="main"]/div[3]'
+            )
+        link_preview_element = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, link_preview_xpath))
+            )
+        def extract_height(element):
+            return int(element.get_attribute("style").split("height:")[1].split("px")[0])
+        time_counter_s = 0
+        thumbnail_height = extract_height(link_preview_element)
+        while ( thumbnail_height == 0 and time_counter_s < timeout):
+            time.sleep(1)
+            thumbnail_height = extract_height(link_preview_element)
+            time_counter_s +=1
 
     def find_attachment(self):
         clipButton = self.wait.until(
