@@ -491,7 +491,7 @@ class WhatsApp(object):
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="clip"]/..')
+                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..')
             )
         )
         clipButton.click()
@@ -538,7 +538,7 @@ class WhatsApp(object):
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                        '//*[@id="main"]/footer//*[@data-testid="mi-attach-media"]/*/input',
                     )
                 )
             )
