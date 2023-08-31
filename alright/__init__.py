@@ -1,14 +1,18 @@
 """
-Alright is unofficial Python wrapper for whatsapp web made as an inspiration from PyWhatsApp
+m_alright is unofficial Python wrapper for whatsapp web made as an inspiration from PyWhatsApp
 allowing you to send messages, images, video and documents programmatically using Python
 """
 
+"""
+This changes has been made becuase when i use arabic languge some funcs did not work.
+'send_message' func does not work especially with long message.
+If you want to add emojis to the message the func will not work correctly.
+"""
 
 import os
 import sys
 import time
 import logging
-import platformdirs
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -27,13 +31,13 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, headless=False, browser=None, time_out=600):
+    def __init__(self, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-        self.headless= headless
+
         if not browser:
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
@@ -52,18 +56,17 @@ class WhatsApp(object):
         self.cli()
         self.login()
         self.mobile = ""
+        self.group = ""
 
     @property
     def chrome_options(self):
         chrome_options = Options()
-        chrome_options.headless = self.headless
-        chrome_options.add_argument(
-            "--user-data-dir=" + platformdirs.user_data_dir("alright")
-        )
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
+            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
+            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def cli(self):
@@ -128,7 +131,7 @@ class WhatsApp(object):
         except Exception as e:
             LOGGER.exception(f"An exception occurred: {e}")
             return False
-
+    
     def find_user(self, mobile) -> None:
         """find_user()
         Makes a user with a given mobile a current target for the wrapper
@@ -158,7 +161,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="side"]/div[1]/div/div/div[2]/div/div[1]',
+                    '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]',
                 )
             )
         )
@@ -265,7 +268,7 @@ class WhatsApp(object):
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
 
-            # acceptable here as an exception!
+            # excepcitonally acceptable here!
             time.sleep(1)
             flag = False
             prev_name = ""
@@ -423,10 +426,9 @@ class WhatsApp(object):
                 lambda ctrl_self: ctrl_self.find_elements(By.XPATH, nr_not_found_xpath)
                 or ctrl_self.find_elements(By.XPATH, inp_xpath)
             )
-            msg = "0"  # Not yet sent
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
-                if i.get_attribute("role") == "textbox":
+                if i.aria_role == "textbox":
                     # This is a WhatsApp Number -> Send Message
 
                     for line in message.split("\n"):
@@ -440,7 +442,7 @@ class WhatsApp(object):
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
-                elif i.get_attribute("role") == "button":
+                elif i.aria_role == "button":
                     # Did not find the Message Text box
                     # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
                     if i.text == "OK":
@@ -456,9 +458,9 @@ class WhatsApp(object):
             LOGGER.info(f"{msg}")
             return msg
 
-    def send_message(self, message):
+    def type_text(self, message):
         """send_message ()
-        Sends a message to a target user
+        type a message to a target user
 
         Args:
             message ([type]): [description]
@@ -470,15 +472,11 @@ class WhatsApp(object):
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
-            for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
-            input_box.send_keys(Keys.ENTER)
-            LOGGER.info(f"Message sent successfuly to {self.mobile}")
+            input_box.send_keys(message)
+                
+            
         except (NoSuchElementException, Exception) as bug:
-            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
+            LOGGER.exception(f"Failed to send a message to {self.mobile} {self.group} - {bug}")
             LOGGER.info("send_message() finished running!")
 
     def send_direct_message(self, mobile: str, message: str, saved: bool = True):
@@ -487,15 +485,17 @@ class WhatsApp(object):
         else:
             self.find_user(mobile)
         self.send_message(message)
-
+    
+    #update
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="clip"]/..')
+                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..')
             )
         )
         clipButton.click()
-
+    
+    #update
     def send_attachment(self):
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
@@ -503,17 +503,16 @@ class WhatsApp(object):
                 (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
             )
         )
-
-        sendButton = self.wait.until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span",
-                )
-            )
+        time.sleep(0.8)
+        # send the message using enter button
+        SendButton = self.browser.find_element(
+            By.CLASS_NAME, '_3wFFT'
+        ).find_element(
+            By.CSS_SELECTOR, '[role="button"]'
         )
-        sendButton.click()
-
+        # click the button
+        SendButton.click()
+        
         # Waiting for the pending clock icon to disappear again - workaround for large files or loading videos.
         # Appropriate solution for the presented issue. [nCKbr]
         self.wait.until_not(
@@ -521,8 +520,12 @@ class WhatsApp(object):
                 (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
             )
         )
-
-    def send_picture(self, picture, message):
+    #update
+    """
+    after writting all text you can put an image to your message,
+    the message will send imadately after louding the image without using 'send_enter' func.
+    """
+    def send_picture(self, picture):
         """send_picture ()
 
         Sends a picture to a target user
@@ -534,26 +537,18 @@ class WhatsApp(object):
             filename = os.path.realpath(picture)
             self.find_attachment()
             # To send an Image
+            
             imgButton = self.wait.until(
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                        '//*[@id="main"]/footer//*[@data-testid="mi-attach-media"]//input',
                     )
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div"
-            input_box = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, inp_xpath))
-            )
-            for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
             self.send_attachment()
-            LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
+            LOGGER.info(f"Picture has been successfully sent to {self.mobile} {self.group}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
@@ -677,7 +672,9 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
+
             if self.find_by_username(query):
+
                 self.wait.until(
                     EC.presence_of_element_located(
                         (
@@ -747,6 +744,7 @@ class WhatsApp(object):
                         header_group.get_attribute("data-testid") == "default-group"
                         and msg_sender.strip() in header_text.text
                     ):
+
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     elif (
                         msg_sender.strip() != msg[0].strip()
@@ -825,7 +823,9 @@ class WhatsApp(object):
                 if limit and counter >= top:
                     break
 
-                LOGGER.info(f"The counter value at this chunk is: {counter}.")
+                LOGGER.info(
+                    f"The counter value at this chunk is: {counter}."
+                )
 
             if limit:
                 LOGGER.info(
@@ -838,3 +838,96 @@ class WhatsApp(object):
         except Exception as bug:
             LOGGER.exception(f"Exception raised while getting first chat: {bug}")
             return []
+        
+    #new
+    """
+    this new fnction to navigate into a group
+    by using the left side bar    
+    """
+    def find_group(self, group: str) -> None:
+        self.group = group
+        left_bar = self.wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.ID,"pane-side"
+                )
+            )
+        )
+        
+        spans = left_bar.find_elements(
+            By.TAG_NAME,"span"
+        )
+        for span in spans:
+            Text = span.text
+            if Text == group:
+                span.click()
+                break 
+
+    #new 
+    """
+    this func is to send the message when you finish writting all the message 
+    (must be used when you have text just in your messages)
+    """
+    def send_enter(self):
+        inp_xpath = (
+            '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[1]'
+        )
+        input_box = self.wait.until(
+            EC.presence_of_element_located((By.XPATH, inp_xpath))
+        )
+        input_box.send_keys(Keys.ENTER)
+        LOGGER.info(f"Message sent successfuly to {self.mobile} {self.group}")
+
+    #new
+    """
+    here you can insert emoji in your text 
+    """
+    def put_emoji(self, picture):
+        # open emoji bar
+        button = self.browser.find_element(
+            By.CLASS_NAME, "_2lryq"
+        ).find_elements(
+            By.TAG_NAME, "button"
+        )[0]
+
+        ActionChains(self.browser).click(button).perform()
+        emoji_list = self.browser.find_element(
+            By.CLASS_NAME,  "_157v1"
+        ).find_element(
+            By.CSS_SELECTOR, '[class="g0rxnol2 thghmljt"]'
+        )
+        # try 200 times just
+        try_times = 1
+        while try_times < 200:
+            try:
+                #try finding the emoji and click to add it
+                matching = emoji_list.find_element(
+                    By.CSS_SELECTOR, f'[data-testid="{picture}"]'
+                )
+                ActionChains(self.browser).click(matching).perform()
+                
+                button = self.browser.find_element(
+                    By.CLASS_NAME, "_2lryq"
+                ).find_elements(
+                    By.TAG_NAME, "button"
+                )[0]
+                ActionChains(self.browser).click(button).perform()
+                break
+            except:
+                # scrolling to find the emoji if not appear
+                scrolling = emoji_list.find_elements(
+                    By.TAG_NAME, "div"
+                )[0]
+                self.browser.execute_script(
+                    f"arguments[0].scrollTop += 60", scrolling
+                )
+                try_times += 1
+    #new
+    """
+    this func move you to a new line
+    """
+    def new_line(self):
+        ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
+            Keys.ENTER
+        ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+        
