@@ -452,7 +452,7 @@ class WhatsApp(object):
             LOGGER.info(f"{msg}")
             return msg
 
-    def send_message(self, message):
+    def send_message(self, message, timeout=0.0):
         """send_message ()
         Sends a message to a target user
 
@@ -471,6 +471,8 @@ class WhatsApp(object):
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if timeout:
+                time.sleep(timeout)
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -487,7 +489,7 @@ class WhatsApp(object):
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="clip"]/..')
+                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..')
             )
         )
         clipButton.click()
@@ -535,12 +537,12 @@ class WhatsApp(object):
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
                     )
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = '//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div'
+            inp_xpath = "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]"
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
@@ -594,7 +596,7 @@ class WhatsApp(object):
                     EC.presence_of_element_located(
                         (
                             By.XPATH,
-                            '//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
+                            '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
                         )
                     )
                 )
@@ -625,7 +627,7 @@ class WhatsApp(object):
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-document"]/../input',
+                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[1]/li/div/input',
                     )
                 )
             )
