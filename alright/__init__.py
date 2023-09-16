@@ -8,7 +8,6 @@ import os
 import sys
 import time
 import logging
-import platformdirs
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -27,13 +26,13 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, headless=False, browser=None, time_out=600):
+    def __init__(self, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-        self.headless= headless
+
         if not browser:
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
@@ -56,14 +55,12 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
-        chrome_options.headless = self.headless
-        chrome_options.add_argument(
-            "--user-data-dir=" + platformdirs.user_data_dir("alright")
-        )
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
+            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
+            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def cli(self):
@@ -158,7 +155,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="side"]/div[1]/div/div/div[2]/div/div[1]',
+                    '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]',
                 )
             )
         )
@@ -265,7 +262,7 @@ class WhatsApp(object):
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
 
-            # acceptable here as an exception!
+            # excepcitonally acceptable here!
             time.sleep(1)
             flag = False
             prev_name = ""
@@ -423,10 +420,9 @@ class WhatsApp(object):
                 lambda ctrl_self: ctrl_self.find_elements(By.XPATH, nr_not_found_xpath)
                 or ctrl_self.find_elements(By.XPATH, inp_xpath)
             )
-            msg = "0"  # Not yet sent
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
-                if i.get_attribute("role") == "textbox":
+                if i.aria_role == "textbox":
                     # This is a WhatsApp Number -> Send Message
 
                     for line in message.split("\n"):
@@ -440,7 +436,7 @@ class WhatsApp(object):
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
-                elif i.get_attribute("role") == "button":
+                elif i.aria_role == "button":
                     # Did not find the Message Text box
                     # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
                     if i.text == "OK":
@@ -465,7 +461,7 @@ class WhatsApp(object):
         """
         try:
             inp_xpath = (
-                '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[1]'
+                '//*[@id="main"]/footer/div/div/span[2]/div/div[2]/div/div/div'
             )
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
@@ -499,6 +495,7 @@ class WhatsApp(object):
         clipButton.click()
 
     def send_attachment(self):
+
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
             EC.presence_of_element_located(
@@ -510,7 +507,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span",
+                    '//*[@id="app"]/div[1]/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span',
                 )
             )
         )
@@ -670,6 +667,30 @@ class WhatsApp(object):
             self.browser.close()
             LOGGER.info("Browser closed.")
 
+    def wait_until_message_successfully_sent(self):
+        """wait_until_message_successfully_sent()
+
+        Waits until message is finished sending before continuing to next action.
+        
+        Friendly contribution by @jeslynlamxy.
+        """
+
+        LOGGER.info("Waiting for message status update to before continuing...")
+        try:
+            # Waiting for the pending clock icon shows and disappear
+            self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+            self.wait.until_not(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
+
     def get_last_message_received(self, query: str):
         """get_last_message_received() [nCKbr]
 
@@ -679,7 +700,9 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
+
             if self.find_by_username(query):
+
                 self.wait.until(
                     EC.presence_of_element_located(
                         (
@@ -749,6 +772,7 @@ class WhatsApp(object):
                         header_group.get_attribute("data-testid") == "default-group"
                         and msg_sender.strip() in header_text.text
                     ):
+
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     elif (
                         msg_sender.strip() != msg[0].strip()
