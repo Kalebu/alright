@@ -155,7 +155,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="app"]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]',
+                    "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]",
                 )
             )
         )
@@ -460,9 +460,7 @@ class WhatsApp(object):
             message ([type]): [description]
         """
         try:
-            inp_xpath = (
-                '//*[@id="main"]/footer/div/div/span[2]/div/div[2]/div/div/div'
-            )
+            inp_xpath = '//*[@id="main"]/footer/div/div/span[2]/div/div[2]/div/div/div'
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
@@ -489,13 +487,15 @@ class WhatsApp(object):
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..')
+                (
+                    By.XPATH,
+                    '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                )
             )
         )
         clipButton.click()
 
     def send_attachment(self):
-
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
             EC.presence_of_element_located(
@@ -671,7 +671,7 @@ class WhatsApp(object):
         """wait_until_message_successfully_sent()
 
         Waits until message is finished sending before continuing to next action.
-        
+
         Friendly contribution by @jeslynlamxy.
         """
 
@@ -700,14 +700,12 @@ class WhatsApp(object):
             query (string): query value to be located in the chat name
         """
         try:
-
             if self.find_by_username(query):
-
                 self.wait.until(
                     EC.presence_of_element_located(
                         (
                             By.XPATH,
-                            '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]',
+                            "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]/p",
                         )
                     )
                 )
@@ -772,7 +770,6 @@ class WhatsApp(object):
                         header_group.get_attribute("data-testid") == "default-group"
                         and msg_sender.strip() in header_text.text
                     ):
-
                         LOGGER.info(f"Message sender: {msg_sender}.")
                     elif (
                         msg_sender.strip() != msg[0].strip()
