@@ -8,6 +8,8 @@ import os
 import sys
 import time
 import logging
+from typing import Optional
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -495,6 +497,22 @@ class WhatsApp(object):
         )
         clipButton.click()
 
+    def add_caption(self, message: str, media_type: str = "image"):
+        xpath_map = {
+            "image": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]",
+            "video": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+        }
+        inp_xpath = xpath_map[media_type]
+        input_box = self.wait.until(
+            EC.presence_of_element_located((By.XPATH, inp_xpath))
+        )
+        for line in message.split("\n"):
+            input_box.send_keys(line)
+            ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(
+                Keys.ENTER
+            ).key_up(Keys.SHIFT).perform()
+
     def send_attachment(self):
         # Waiting for the pending clock icon to disappear
         self.wait.until_not(
@@ -521,7 +539,7 @@ class WhatsApp(object):
             )
         )
 
-    def send_picture(self, picture, message):
+    def send_picture(self, picture: Path, message: Optional[str] = None):
         """send_picture ()
 
         Sends a picture to a target user
@@ -542,15 +560,8 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]"
-            input_box = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, inp_xpath))
-            )
-            for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if message:
+                self.add_caption(message, media_type="image")
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -576,7 +587,7 @@ class WhatsApp(object):
                     return size
                 size /= 1024.0
 
-    def send_video(self, video):
+    def send_video(self, video: Path, message: Optional[str] = None):
         """send_video ()
         Sends a video to a target user
         CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
@@ -602,7 +613,8 @@ class WhatsApp(object):
                 )
 
                 video_button.send_keys(filename)
-
+                if message:
+                    self.add_caption(message, media_type="video")
                 self.send_attachment()
                 LOGGER.info(f"Video has been successfully sent to {self.mobile}")
             else:
@@ -612,7 +624,7 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_video() finished running!")
 
-    def send_file(self, filename):
+    def send_file(self, filename: Path, message: Optional[str] = None):
         """send_file()
 
         Sends a file to target user
@@ -632,6 +644,8 @@ class WhatsApp(object):
                 )
             )
             document_button.send_keys(filename)
+            if message:
+                self.add_caption(message, media_type="file")
             self.send_attachment()
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a file to {self.mobile} - {bug}")

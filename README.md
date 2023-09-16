@@ -179,14 +179,19 @@ Here how to send a message to multiple users, Let's say we want to wish merry-x 
 
 *You have to include the **country code** in your number for this library to work but don't include the (+) symbol*
 
+
+> If you're sending media either picture, file, or video each of them have an optional parameter called <message> which is usually the caption to accompany the media. 
+
 ### Sending Images
 
 Sending Images is nothing new, its just the fact you have to include a path to your image and the message to accompany the image instead of just the raw string characters and also you have use *send_picture()*, Here an example;
+
 
 ```python
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
+>>> messenger.send_picture('path-to-image-without-caption')
 >>> messenger.send_picture('path-to-image',"Text to accompany image")
 ```
 
@@ -198,9 +203,10 @@ Similarly, to send videos just use the *send_video()*  method;
 >>> from alright import WhatsApp
 >>> messenger = WhatsApp()
 >>> messenger.find_user('mobile')
->>> messenger.send_video('path-to-video)
-
+>>> messenger.send_video('path-to-video')
 ```
+
+>
 
 ### Sending Documents
 
