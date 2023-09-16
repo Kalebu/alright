@@ -541,7 +541,6 @@ class WhatsApp(object):
                     (
                         By.XPATH,
                         '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
-                        
                     )
                 )
             )
