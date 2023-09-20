@@ -730,8 +730,10 @@ class WhatsApp(object):
 
                 list_of_messages = self.wait.until(
                     EC.presence_of_all_elements_located(
-                        By.XPATH,
-                        '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]',
+                        (
+                            By.XPATH,
+                            '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]',
+                        )
                     )
                 )
 
