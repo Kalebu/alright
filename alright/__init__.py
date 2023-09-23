@@ -530,6 +530,9 @@ class WhatsApp(object):
             )
         )
         sendButton.click()
+        # images not send in case of bulk,
+        # as attachments takes some time to load, so adding some sleep
+        time.sleep(0.3)
 
         # Waiting for the pending clock icon to disappear again - workaround for large files or loading videos.
         # Appropriate solution for the presented issue. [nCKbr]
