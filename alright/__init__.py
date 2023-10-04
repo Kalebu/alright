@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import logging
+import platformdirs
 from typing import Optional
 from pathlib import Path
 from selenium import webdriver
@@ -28,13 +29,13 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, browser=None, time_out=600):
+    def __init__(self, headless=False, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-
+        self.headless= headless
         if not browser:
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
@@ -57,12 +58,14 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
+        chrome_options.headless = self.headless
+        chrome_options.add_argument(
+            "--user-data-dir=" + platformdirs.user_data_dir("alright")
+        )
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
-            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
-            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def cli(self):
@@ -264,7 +267,7 @@ class WhatsApp(object):
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
 
-            # excepcitonally acceptable here!
+            # acceptable here as an exception!
             time.sleep(1)
             flag = False
             prev_name = ""
@@ -424,7 +427,7 @@ class WhatsApp(object):
             )
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
-                if i.aria_role == "textbox":
+                if i.get_attribute("role") == "textbox":
                     # This is a WhatsApp Number -> Send Message
 
                     for line in message.split("\n"):
@@ -438,7 +441,7 @@ class WhatsApp(object):
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
-                elif i.aria_role == "button":
+                elif i.get_attribute("role") == "button":
                     # Did not find the Message Text box
                     # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
                     if i.text == "OK":
