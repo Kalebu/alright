@@ -15,6 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -37,8 +38,8 @@ class WhatsApp(object):
 
         if not browser:
             browser = webdriver.Chrome(
-                ChromeDriverManager().install(),
                 options=self.chrome_options,
+                service=Service(ChromeDriverManager().install())
             )
 
             handles = browser.window_handles
