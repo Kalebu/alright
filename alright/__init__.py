@@ -23,6 +23,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 LOGGER = logging.getLogger()
 
@@ -37,7 +38,7 @@ class WhatsApp(object):
 
         if not browser:
             browser = webdriver.Chrome(
-                ChromeDriverManager().install(),
+                service=Service(executable_path=ChromeDriverManager().install()),
                 options=self.chrome_options,
             )
 
