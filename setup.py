@@ -28,7 +28,7 @@ setup(
     ],
     install_requires=[
         "platformdirs",
-        "selenium",
+        "selenium==4.2.0",
         "webdriver-manager",
     ],
     include_package_data=False,

@@ -3,7 +3,6 @@ Alright is unofficial Python wrapper for whatsapp web made as an inspiration fro
 allowing you to send messages, images, video and documents programmatically using Python
 """
 
-
 import os
 import sys
 import time
@@ -36,9 +35,11 @@ class WhatsApp(object):
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
 
         if not browser:
+            chrome_options = Options()
+            # Add any desired options here
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
-                options=self.chrome_options,
+                options=chrome_options,
             )
 
             handles = browser.window_handles
@@ -333,9 +334,9 @@ class WhatsApp(object):
                         "time": _message[1],
                         "message": _message[2],
                         "unread": _message[-1].isdigit(),
-                        "no_of_unread": int(_message[-1])
-                        if _message[-1].isdigit()
-                        else 0,
+                        "no_of_unread": (
+                            int(_message[-1]) if _message[-1].isdigit() else 0
+                        ),
                         "group": False,
                     }
                 )
@@ -346,9 +347,9 @@ class WhatsApp(object):
                         "time": _message[1],
                         "message": "",
                         "unread": _message[-1].isdigit(),
-                        "no_of_unread": int(_message[-1])
-                        if _message[-1].isdigit()
-                        else 0,
+                        "no_of_unread": (
+                            int(_message[-1]) if _message[-1].isdigit() else 0
+                        ),
                         "group": True,
                     }
                 )
@@ -359,9 +360,9 @@ class WhatsApp(object):
                         "time": _message[1],
                         "message": _message[4],
                         "unread": _message[-1].isdigit(),
-                        "no_of_unread": int(_message[-1])
-                        if _message[-1].isdigit()
-                        else 0,
+                        "no_of_unread": (
+                            int(_message[-1]) if _message[-1].isdigit() else 0
+                        ),
                         "group": True,
                     }
                 )
