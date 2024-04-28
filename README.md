@@ -146,7 +146,7 @@ Here is an example on how to use it;
 2022-08-14 17:27:57,264 - root -- [INFO] >> Message sent successfuly to 
 2022-08-14 17:27:57,264 - root -- [INFO] >> send_message() finished running!
 >>> messenger.send_direct_message('25573652xxx', 'Who is This ?', False)
-2022-08-14 17:28:30,953 - root -- [INFO] >> Message sent successfuly to 255736524388
+2022-08-14 17:28:30,953 - root -- [INFO] >> Message sent successfuly to 25573652xxx
 2022-08-14 17:28:30,953 - root -- [INFO] >> send_message() finished running!
 ```
 
