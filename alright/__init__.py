@@ -15,6 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -37,7 +38,7 @@ class WhatsApp(object):
 
         if not browser:
             browser = webdriver.Chrome(
-                ChromeDriverManager().install(),
+                service=ChromeService(ChromeDriverManager().install()),
                 options=self.chrome_options,
             )
 
@@ -139,11 +140,21 @@ class WhatsApp(object):
             self.mobile = mobile
             link = self.get_phone_link(mobile)
             self.browser.get(link)
-            time.sleep(3)
+            # check if user profile exists or not
+            nr_xpath = '//*[@id="main"]/header/div[2]/div/div/div/span'
+            nr_not_found_xpath = '//*[@id="app"]/div/span[2]/div/span/div/div/div/div/div/div[2]/div/button'
+
+            ctrl_element = self.wait.until(
+                lambda ctrl_self: ctrl_self.find_elements(By.XPATH, nr_not_found_xpath)
+                or ctrl_self.find_elements(By.XPATH, nr_xpath)
+            )[0]
+            if ctrl_element.tag_name == 'span': # user does exists and the span will have the number of the user
+                return True
         except UnexpectedAlertPresentException as bug:
             LOGGER.exception(f"An exception occurred: {bug}")
             time.sleep(1)
             self.find_user(mobile)
+        return False
 
     def find_by_username(self, username):
         """find_user_by_name ()
@@ -467,7 +478,12 @@ class WhatsApp(object):
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
             for line in message.split("\n"):
-                input_box.send_keys(line)
+                # mimick human like typing behaviour
+                for word in line.split():
+                    input_box.send_keys(word)
+                    input_box.send_keys(Keys.SPACE)
+                    time.sleep(1)
+
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
@@ -475,9 +491,11 @@ class WhatsApp(object):
                 time.sleep(timeout)
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
+            return True
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
             LOGGER.info("send_message() finished running!")
+        return False
 
     def send_direct_message(self, mobile: str, message: str, saved: bool = True):
         if saved:
