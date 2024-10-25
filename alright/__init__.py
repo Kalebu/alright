@@ -462,7 +462,7 @@ class WhatsApp(object):
             message ([type]): [description]
         """
         try:
-            inp_xpath = '//*[@id="main"]/footer/div/div/span[2]/div/div[2]/div/div/div'
+            inp_xpath = '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div[1]/div/div[1]/p'
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
