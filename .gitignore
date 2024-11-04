@@ -130,5 +130,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# laporan sales
+*.xlsx
 
-laporan_sales_by_item.xlsx
+# open bill data
+opbill*
