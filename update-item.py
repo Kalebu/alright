@@ -78,8 +78,6 @@ def get_start_and_end_time():
 
 
 def get_laporan_sales_by_category(branch_id):
-    print(startdate, enddate)
-    print(starttime, endtime)
     data = {
         'radio-duration': 'all-day',
         'time-left': '00',
@@ -121,7 +119,12 @@ def get_report_salesrealtime_detail(reffnumber):
     )
 
     opbill_data = json.loads(response.content)
-    return sum(map(lambda i: i['qty'] - i['voidQty'], filter(lambda x: x['catName'] != 'Parkir', opbill_data['txnproductitem']['detail'])))
+    
+    # still unknown why sometimes it returns a list instead of detail
+    if type(opbill_data['txnproductitem']) == list:
+        return []
+
+    return opbill_data['txnproductitem']['detail']
 
 
 def get_open_bill(branch_id):
@@ -143,8 +146,17 @@ def get_open_bill(branch_id):
 
     salesrealtime_data = json.loads(response.content)
     reffnumbers = filter(lambda x: x != '', map(itemgetter('reff_number'), salesrealtime_data['data']))
-    open_bills = map(get_report_salesrealtime_detail, reffnumbers)
-    return sum(open_bills)
+    open_bills = list(filter(lambda x: len(x) != 0, map(get_report_salesrealtime_detail, reffnumbers)))
+    
+    # convert into flat list of items
+    open_bills = [item for sublist in open_bills for item in sublist]
+
+    ob_items = defaultdict(int)
+
+    for item in open_bills:
+        ob_items[item['catName']] += item['qty'] - item['voidQty']
+    
+    return ob_items
 
 
 def get_target(branch_name, TOTAL):
@@ -156,13 +168,7 @@ def get_target(branch_name, TOTAL):
     return TARGET
 
 
-def get_sales_by_category(branch_name):
-    items = defaultdict(int)
-    df_laporan_sales = get_laporan_sales_by_category(BRANCH_IDS[branch_name])
-
-    for idx, row in df_laporan_sales.iterrows():
-        items[row['Category']] += row['Item Sold'] - row['Item Void']
-    
+def print_items(items):
     MINUMAN = items['ESPRESSO BASED'] + items['POWDER BASED'] + items['MOCKTAIL'] + items['MANUAL BREW'] + items['TEA'] + items['LARGE']
     MAKANAN = items['EATS AND BITES']
     BEER = items['BEER']
@@ -170,13 +176,37 @@ def get_sales_by_category(branch_name):
     MERCHANDISE = items['MERCHANDISE']
     PAKET_BUKBER = items['PAKET BUKBER']
     PAKET_PROMO = items['PAKET PROMO']
-    NOBAR = items['Event']
+    EVENT = items['Event']
     PARKIR = items['Parkir']
-    TOTAL = MINUMAN + MAKANAN + BEER + ROKOK + MERCHANDISE + NOBAR
+    TOTAL = MINUMAN + MAKANAN + BEER
+
+    return TOTAL, f'MINUMAN: {MINUMAN}\n' + \
+        f'MAKANAN: {MAKANAN}\n' + \
+        (f'BEER: {BEER}\n' if BEER else '') + \
+        (f'ROKOK: {ROKOK}\n' if ROKOK else '') + \
+        (f'MERCHANDISE: {MERCHANDISE}\n' if MERCHANDISE else '') + \
+        (f'PAKET/PROMO: {PAKET_PROMO}\n' if PAKET_PROMO else '') + \
+        (f'EVENT: {EVENT}\n' if EVENT else '') + \
+        (f'PAKET BUKBER: {PAKET_BUKBER}\n' if PAKET_BUKBER else '') + \
+        (f'PARKIR: {PARKIR}\n' if PARKIR else '') + \
+        f'_*TOTAL: {TOTAL}*_\n'
+
+
+def get_sales_by_category(branch_name):
+    items = defaultdict(int)
+    df_laporan_sales = get_laporan_sales_by_category(BRANCH_IDS[branch_name])
+
+    for _, row in df_laporan_sales.iterrows():
+        items[row['Category']] += row['Item Sold'] - row['Item Void']
 
     OPEN_BILL = get_open_bill(BRANCH_IDS[branch_name])
-    TOTAL += OPEN_BILL
-    TARGET = get_target(branch_name, TOTAL)
+
+    TOTAL_ITEMS, ITEMS_PRINTS = print_items(items)
+    TOTAL_OB, OB_PRINTS = print_items(OPEN_BILL)
+
+    GRAND_TOTAL = TOTAL_ITEMS + TOTAL_OB
+
+    TARGET = get_target(branch_name, GRAND_TOTAL)
 
     msg = \
         f'*[AUTO] UPDATE ITEM {branch_name}*\n' + \
@@ -184,25 +214,17 @@ def get_sales_by_category(branch_name):
         f'*TARGET*: {TARGET}\n' + \
         '\n' + \
         '*ITEM*\n' + \
-        f'MINUMAN: {MINUMAN}\n' + \
-        f'MAKANAN: {MAKANAN}\n' + \
-        (f'BEER: {BEER}\n' if BEER else '') + \
-        (f'ROKOK: {ROKOK}\n' if ROKOK else '') + \
-        (f'MERCHANDISE: {MERCHANDISE}\n' if MERCHANDISE else '') + \
-        f'OPEN BILL: {OPEN_BILL}\n' + \
-        (f'PAKET/PROMO: {PAKET_PROMO}\n' if PAKET_PROMO else '') + \
-        (f'NOBAR: {NOBAR}\n' if NOBAR else '') + \
-        (f'PAKET BUKBER: {PAKET_BUKBER}\n' if PAKET_BUKBER else '') + \
-        f'PARKIR: {PARKIR}\n' + \
+        ITEMS_PRINTS + \
         '\n' + \
-        f'TOTAL: {TOTAL}\n' + \
-        f'MINUS: {TARGET - TOTAL}\n' + \
+        '*OPEN BILL*\n' + \
+        OB_PRINTS + \
         '\n' + \
-        f'TARGET ITEM: {int(PARKIR * 2.3 * 1.5)}'
+        f'*GRAND TOTAL: {GRAND_TOTAL}*\n' + \
+        f'*MINUS: {TARGET - GRAND_TOTAL}*\n'
 
     print(msg)
-    
-    messenger.send_direct_message('Koordinasi Target 1994', msg)
+
+    messenger.send_direct_message('XD', msg)
 
 
 def get_seconds_to_sleep():
