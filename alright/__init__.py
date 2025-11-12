@@ -490,18 +490,63 @@ class WhatsApp(object):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
                 (
+                    # CJM 2025/11/12 Latest expath of attachment '+' button
                     By.XPATH,
-                    '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                    #'//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                    '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div/div[1]/div/span/div/div'
                 )
             )
         )
         clipButton.click()
 
-    def add_caption(self, message: str, media_type: str = "image"):
+    def send_audio(self, audio: Path):
+        """send_video ()
+        Sends an audio file to a target user
+        CJM - 2025/11/12: I use this for Audio
+
+        Args:
+            audio ([type]): the audio file to be sent.
+        """
+        try:
+            filename = os.path.realpath(audio)                      
+
+            self.find_attachment()
+            # To send a Audio
+            audio_button = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//*[@id="app"]/div[1]/div/span[6]/div/ul/div/div/div[4]/li/div/input',
+                    )
+                )
+            )
+
+            audio_button.send_keys(filename)
+
+            # Now click the Send Button
+            audio_send = self.wait.until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[2]/div[2]/div/div',
+                    )
+                )
+            )
+                        
+            audio_send.send_keys(Keys.ENTER)
+
+            LOGGER.info(f"Audio has been successfully sent to {self.mobile}")
+
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send Audio to {self.mobile} - {bug}")
+        finally:
+            LOGGER.info("send_audio() finished running!")
+
+    def add_caption(self, message: str, media_type: str = "image"):        
         xpath_map = {
             "image": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]",
             "video": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
-            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",            
         }
         inp_xpath = xpath_map[media_type]
         input_box = self.wait.until(
