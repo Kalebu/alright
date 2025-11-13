@@ -487,21 +487,24 @@ class WhatsApp(object):
         self.send_message(message)
 
     def find_attachment(self):
+        """ find_attachment_button
+
+            This is to find the Clip or Plus button to attach a file and click it to open the sub menu
+        """
         clipButton = self.wait.until(
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                    '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div/div[1]/div/span/div/div'
                 )
             )
         )
         clipButton.click()
 
-    def add_caption(self, message: str, media_type: str = "image"):
+    def add_caption(self, message: str, media_type: str = "Doc"):
         xpath_map = {
-            "image": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]",
-            "video": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
-            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+            'Doc': '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]',
+            'PhotoVideo': '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]/div[1]',
         }
         inp_xpath = xpath_map[media_type]
         input_box = self.wait.until(
@@ -539,30 +542,105 @@ class WhatsApp(object):
             )
         )
 
-    def send_picture(self, picture: Path, message: Optional[str] = None):
-        """send_picture ()
-
-        Sends a picture to a target user
+        def send_attachment1(self, send_file: Path, message: str = "", file_type: str = "File"):
+        """send_attachment1 ()
+        CJM - 2025/11/12: Sends File, Document, 'Photo & Video', and Audio to a target user
+        NOTE: Seems File does not work very well
 
         Args:
-            picture ([type]): [description]
+            send_file ([type]): the file to be sent.
+            message : String message or caption of the file IF it can have one
+            file_type : Options should be - File, Doc, PhotoVideo, or Audio
         """
         try:
-            filename = os.path.realpath(picture)
-            self.find_attachment()
-            # To send an Image
-            imgButton = self.wait.until(
+            # Waiting for the pending clock icon to disappear
+            self.wait.until_not(
                 EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
-                    )
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
                 )
             )
-            imgButton.send_keys(filename)
-            if message:
-                self.add_caption(message, media_type="image")
-            self.send_attachment()
+
+            filename = os.path.realpath(send_file)
+
+            # Find and click the attachment button
+            self.find_attachment_button()
+
+            # Find File input element
+            xpath_map = {
+                'File': '//*[@id="main"]/footer/input',
+                'Audio': '//*[@id="app"]/div[1]/div/span[6]/div/ul/div/div/div[4]/li/div/input',
+                'Doc': '//*[@id="app"]/div[1]/div/span[6]/div/ul/div/div/div[1]/li/div/input',
+                'PhotoVideo': '//*[@id="app"]/div[1]/div/span[6]/div/ul/div/div/div[2]/li/div/input',
+            }
+            inp_xpath = xpath_map[file_type]
+            input_box = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, inp_xpath))
+            )
+            input_box.send_keys(filename)
+
+            # Now, if there is a caption to be sent, find the element and add caption before send
+            if file_type not in ('Audio', 'File'):
+                # Find Caption input element
+                xpath_map = {
+                    'Doc': '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]',
+                    'PhotoVideo': '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]/div[1]',
+                }
+                inp_xpath = xpath_map[file_type]
+                input_box = self.wait.until(
+                    EC.presence_of_element_located((By.XPATH, inp_xpath))
+                )
+                if len(message) > 4:
+                # It makes good sense to only send propper captions so if less than 4 characters does not make sense
+                # File and Audio does not have a Caption it seems
+                    for line in message.split("\n"):
+                        input_box.send_keys(line)
+                        ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(
+                            Keys.ENTER
+                        ).key_up(Keys.SHIFT).perform()
+
+                # And send
+                input_box.send_keys(Keys.ENTER)
+
+            else:
+                # This file type does not have a caption, so simply send
+                # Now click the Send Button
+                send_button = self.wait.until(
+                    EC.presence_of_element_located(
+                        (
+                            By.XPATH,
+                            '//*[@id="app"]/div[1]/div/div[3]/div/div[3]/div[2]/div/span/div/div/div/div[2]/div/div[2]/div[2]/div/div',
+                        )
+                    )
+                )
+
+                send_button.send_keys(Keys.ENTER)
+
+            # Waiting for the pending clock icon to disappear again - workaround for large files or loading videos.
+            # Appropriate solution for the presented issue. [nCKbr]
+            self.wait.until_not(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+
+            LOGGER.info(f"Attachment has been successfully sent to {self.mobile}")
+
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send attachment to {self.mobile} - {bug}")
+        finally:
+            LOGGER.info("send_attachment1() finished running!")
+
+    def send_picture(self, picture: Path, message: Optional[str] = None):
+         """send_picture ()
+        2025/11/13 CJM - Sends a picture to a target user is a bit DEPRECIATED
+
+        Args:
+            picture ([type]): Path and file
+            message : Caption
+        """
+        try:
+            self.send_attachment1(picture, message, "PhotoVideo") 
+
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
@@ -590,35 +668,16 @@ class WhatsApp(object):
     def send_video(self, video: Path, message: Optional[str] = None):
         """send_video ()
         Sends a video to a target user
-        CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
+        2022/06/10 - CJM: Only if file is less than 14MB (WhatsApp limit is 15MB)
+        2025/11/13 - CJM send_video is a bit DEPRECIATED
 
         Args:
             video ([type]): the video file to be sent.
+            message : Caption to be sent on Vidio
         """
         try:
-            filename = os.path.realpath(video)
-            f_size = os.path.getsize(filename)
-            x = self.convert_bytes_to(f_size, "MB")
-            if x < 14:
-                # File is less than 14MB
-                self.find_attachment()
-                # To send a Video
-                video_button = self.wait.until(
-                    EC.presence_of_element_located(
-                        (
-                            By.XPATH,
-                            '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
-                        )
-                    )
-                )
-
-                video_button.send_keys(filename)
-                if message:
-                    self.add_caption(message, media_type="video")
-                self.send_attachment()
-                LOGGER.info(f"Video has been successfully sent to {self.mobile}")
-            else:
-                LOGGER.info(f"Video larger than 14MB")
+            self.send_attachment1(video, message, "PhotoVideo")
+            
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
         finally:
