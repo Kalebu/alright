@@ -23,6 +23,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 from webdriver_manager.chrome import ChromeDriverManager
+import subprocess
 
 LOGGER = logging.getLogger()
 
@@ -491,9 +492,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    # '//*[@id="main"]/footer/div[1]/div/span/div/div[1]/div/button',
-                    #'//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div/div[1]/button/span',
-                    '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div/div[1]/div/span/div/div/div[1]/div[1]/span'
+                    '//button[@aria-label="Attach"]'
                 )
             )
         )
@@ -631,51 +630,30 @@ class WhatsApp(object):
     def send_picture(self, picture: Path, message: Optional[str] = None):
         try:
             filename = os.path.realpath(picture)
-            LOGGER.info(f"send_picture: resolved file path: {filename}")
 
             self.find_attachment()
 
-            LOGGER.info("send_picture: locating image input element.")
-            imgButton = self.wait.until(
-                EC.presence_of_element_located((
+            photosButton = self.wait.until(
+                EC.element_to_be_clickable((
                     By.XPATH,
-                    '//*[@id="app"]/div[1]/div/span[6]/div/ul/div/div/div[2]/li/div/input'
+                    '//div[@aria-label="Photos & videos"]'
                 ))
             )
-            LOGGER.info(
-                "send_picture: image input found: "
-                f"enabled={imgButton.is_enabled()}, displayed={imgButton.is_displayed()}"
-            )
-            imgButton.send_keys(filename)
-            LOGGER.info("send_picture: file path sent to image input.")
+            photosButton.click()
 
-            # Wait for the media preview modal
-            preview_candidates = [
-                # Common media preview containers seen in recent builds
-                (By.CSS_SELECTOR, 'div[role="dialog"]'),
-                (By.XPATH, '//div[@data-animate-modal-popup="true"]'),
-                (By.XPATH, '//div[contains(@class,"_ak9i") or contains(@class,"_aiqk")]'),  # heuristic
-            ]
-            preview_visible = False
-            for by_, sel in preview_candidates:
-                try:
-                    WebDriverWait(self.browser, 3).until(EC.visibility_of_element_located((by_, sel)))
-                    LOGGER.info(f"send_picture: preview modal visible via {by_} -> {sel}")
-                    preview_visible = True
-                    break
-                except Exception:
-                    LOGGER.info(f"send_picture: preview modal not visible on {by_} -> {sel}")
+            # Wait for dialog to open, then use xdotool
+            time.sleep(1)
+            with open('/config/filename.txt', 'w') as f:
+                f.write(filename)
+
+            time.sleep(2)
 
             if message:
-                if not preview_visible:
-                    LOGGER.info("send_picture: preview modal not confirmed visible, adding extra delay.")
-                    time.sleep(0.5)
-                LOGGER.info("send_picture: adding caption before send.")
-                self.add_caption(message, media_type="image")
-            else:
-                LOGGER.info("send_picture: no caption provided.")
+                self.add_caption(message)
 
-            #self.send_attachment()
+            LOGGER.info("Caption done, calling send_attachment")
+            # self.send_attachment()
+            
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
