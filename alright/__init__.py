@@ -23,6 +23,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 from webdriver_manager.chrome import ChromeDriverManager
+import subprocess
 
 LOGGER = logging.getLogger()
 
@@ -157,11 +158,11 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]",
+                    '//*[@id="side"]/div[1]/div/div[2]/div/div/div',
                 )
             )
         )
-        search_box.clear()
+        # search_box.clear()
         search_box.send_keys(username)
         search_box.send_keys(Keys.ENTER)
         try:
@@ -487,31 +488,117 @@ class WhatsApp(object):
         self.send_message(message)
 
     def find_attachment(self):
-        clipButton = self.wait.until(
+        plusButton = self.wait.until(
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                    '//button[@aria-label="Attach"]'
                 )
             )
         )
-        clipButton.click()
+        plusButton.click()
 
     def add_caption(self, message: str, media_type: str = "image"):
-        xpath_map = {
-            "image": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]",
-            "video": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
-            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
-        }
-        inp_xpath = xpath_map[media_type]
-        input_box = self.wait.until(
-            EC.presence_of_element_located((By.XPATH, inp_xpath))
-        )
-        for line in message.split("\n"):
-            input_box.send_keys(line)
-            ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(
-                Keys.ENTER
-            ).key_up(Keys.SHIFT).perform()
+        LOGGER.info(f"add_caption: called with media_type={media_type}, message={repr(message)}")
+
+        # 1) Try to find the preview container quickly (optional scope)
+        preview = None
+        preview_selectors = [
+            # Your build didn't expose role="dialog" or data-animate-modal-popup, but check quickly anyway
+            (By.XPATH, '//*[@id="app"]/div[1]/div/div[3]/div/div[2]/div[2]'),  # preview footer area parent
+            (By.CSS_SELECTOR, '#app div[role="dialog"]'),
+        ]
+        for by_, sel in preview_selectors:
+            try:
+                preview = WebDriverWait(self.browser, 1).until(EC.presence_of_element_located((by_, sel)))
+                LOGGER.info(f"add_caption: preview container found via {by_} -> {sel}")
+                break
+            except Exception:
+                pass  # don't log to keep noise down, these are best-effort
+
+        # 2) Candidate selectors, but order the working one first
+        candidates = [
+            (By.CSS_SELECTOR, 'div[contenteditable="true"]'),          # known-good in your logs
+            (By.CSS_SELECTOR, 'div[role="dialog"] [contenteditable="true"]'),
+            (By.CSS_SELECTOR, '[data-testid="media-caption-input"]'),
+        ]
+
+        input_box = None
+        last_err = None
+
+        for by_, sel in candidates:
+            LOGGER.info(f"add_caption: trying selector {by_} -> {sel}")
+            try:
+                if preview:
+                    # Find within preview to avoid matching other editables
+                    elems = preview.find_elements(by_, sel) if by_ != By.CSS_SELECTOR else preview.find_elements(By.CSS_SELECTOR, sel)
+                    # Prefer displayed elements
+                    input_box = next((e for e in elems if e.is_displayed()), None)
+                    if not input_box:
+                        raise NoSuchElementException(f"No displayed element found in preview for {by_} -> {sel}")
+                else:
+                    # Quick global search with clickability preference
+                    try:
+                        input_box = WebDriverWait(self.browser, 1.5).until(EC.element_to_be_clickable((by_, sel)))
+                        LOGGER.info("add_caption: element is clickable (global).")
+                    except Exception as e1:
+                        LOGGER.info(f"add_caption: clickable failed: {e1}; trying presence (global).")
+                        input_box = WebDriverWait(self.browser, 1.5).until(EC.presence_of_element_located((by_, sel)))
+
+                if input_box:
+                    LOGGER.info(
+                        "add_caption: caption input found: "
+                        f"tag={getattr(input_box, 'tag_name', None)}, "
+                        f"enabled={getattr(input_box, 'is_enabled', lambda: 'n/a')()}, "
+                        f"displayed={getattr(input_box, 'is_displayed', lambda: 'n/a')()}"
+                    )
+                    # Focus and small settle
+                    try:
+                        self.browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_box)
+                    except Exception:
+                        pass
+                    try:
+                        input_box.click()
+                    except Exception:
+                        pass
+                    time.sleep(0.1)
+                    break
+            except Exception as e:
+                last_err = e
+                LOGGER.info(f"add_caption: selector failed {by_} -> {sel} with {e}")
+                input_box = None
+
+        if not input_box:
+            LOGGER.error(f"add_caption: could not locate caption input with any selector. Last error: {last_err}")
+            return
+
+        # Optional: confirm active element (diagnostic)
+        try:
+            active = self.browser.switch_to.active_element
+            LOGGER.info(f"add_caption: active element tag={getattr(active,'tag_name',None)}")
+        except Exception:
+            pass
+
+        # 3) Type the caption and submit with final Enter (your working behavior)
+        try:
+            lines = message.split("\n")
+            for i, line in enumerate(lines):
+                LOGGER.info(f"add_caption: sending line {i}: {repr(line)}")
+                input_box.send_keys(line)
+                if i < len(lines) - 1:
+                    ActionChains(self.browser)\
+                        .key_down(Keys.SHIFT)\
+                        .key_down(Keys.ENTER)\
+                        .key_up(Keys.ENTER)\
+                        .key_up(Keys.SHIFT)\
+                        .perform()
+
+            # Small settle before enter to send
+            time.sleep(0.15)
+            LOGGER.info("add_caption: sending final ENTER to submit.")
+            input_box.send_keys(Keys.ENTER)
+        except Exception as e:
+            LOGGER.exception(f"add_caption: failed while sending keys: {e}")
 
     def send_attachment(self):
         # Waiting for the pending clock icon to disappear
@@ -525,7 +612,8 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//*[@id="app"]/div[1]/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span',
+                    #'//*[@id="app"]/div/div[3]/div/div[2]/div[2]/span/div/div/div/div[2]/div/div[2]/div[2]/div/div',
+                    '//*[@id="app"]/div[1]/div/div[3]/div/div[2]/div[2]/div/span/div/div/div/div[2]/div/div[2]/div[2]/div/div',
                 )
             )
         )
@@ -540,29 +628,32 @@ class WhatsApp(object):
         )
 
     def send_picture(self, picture: Path, message: Optional[str] = None):
-        """send_picture ()
-
-        Sends a picture to a target user
-
-        Args:
-            picture ([type]): [description]
-        """
         try:
             filename = os.path.realpath(picture)
+
             self.find_attachment()
-            # To send an Image
-            imgButton = self.wait.until(
-                EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
-                    )
-                )
+
+            photosButton = self.wait.until(
+                EC.element_to_be_clickable((
+                    By.XPATH,
+                    '//div[@aria-label="Photos & videos"]'
+                ))
             )
-            imgButton.send_keys(filename)
+            photosButton.click()
+
+            # Wait for dialog to open, then use xdotool
+            time.sleep(1)
+            with open('/config/filename.txt', 'w') as f:
+                f.write(filename)
+
+            time.sleep(2)
+
             if message:
-                self.add_caption(message, media_type="image")
-            self.send_attachment()
+                self.add_caption(message)
+
+            LOGGER.info("Caption done, calling send_attachment")
+            # self.send_attachment()
+            
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
